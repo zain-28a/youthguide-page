@@ -198,17 +198,17 @@
 
                     <!-- One item expanded at a time (.is-active) -->
                     <div class="why-list">
-                        <div class="glass glass--crystal why-item">
+                        <div class="card why-item">
                             <span class="why-num"></span>
                             <h3>لغة الجيل</h3>
                             <div class="why-body"><p>المعلومة بين الأقران (Peer-to-Peer) تنتقل بشغف وسلاسة لا توفرها القاعات الأكاديمية التقليدية.</p></div>
                         </div>
-                        <div class="glass glass--crystal why-item">
+                        <div class="card why-item">
                             <span class="why-num"></span>
                             <h3>المرونة والسرعة</h3>
                             <div class="why-body"><p>نواكب طفرات التكنولوجيا والذكاء الاصطناعي والإعلانات المعاصرة بتسارع يتناسب مع واقعنا.</p></div>
                         </div>
-                        <div class="glass glass--crystal why-item">
+                        <div class="card why-item">
                             <span class="why-num"></span>
                             <h3>بيئة آمنة للإبداع</h3>
                             <div class="why-body"><p>مكان لتجريب ما تعلمه الشباب، حيث الخطأ جزء من التعلم، والدعم يأتي من أصدقاء يشبهونهم.</p></div>
@@ -219,54 +219,48 @@
             </div>
         </section>
 
-        <!-- 4) Vision: card over the large, faint logo -->
+        <!-- 4) Vision + goals: two cards side by side over the large, faint logo -->
         <section id="vision" class="scene scene-vision">
             <div class="scene-stage">
                 <div class="info-stage">
-                    <div class="glass info-block vision-block">
-                        <h2 class="info-title">رؤيتنا</h2>
-                        <p class="info-quote">"أن نصبح أكبر مجتمع رقمي شبابي عربياً، يقود التحول من مستهلكين للتكنولوجيا إلى صنّاع ومصدرين لها."</p>
+                    <div class="info-pair">
+                        <div class="glass info-block vision-block">
+                            <h2 class="info-title">رؤيتنا</h2>
+                            <p class="info-quote">"أن نصبح أكبر مجتمع رقمي شبابي عربياً، يقود التحول من مستهلكين للتكنولوجيا إلى صنّاع ومصدرين لها."</p>
+                        </div>
+                        <div class="glass info-block goals-block">
+                            <h2 class="info-title goals-title">أهدافنا</h2>
+                            <ol class="goals-list">
+                                <li class="goal-item">محو الأمية البرمجية والتقنية.</li>
+                                <li class="goal-item">تأهيل الهواة لسوق العمل الاحترافي.</li>
+                                <li class="goal-item">صناعة قادة ومدربين تقنيين.</li>
+                                <li class="goal-item">حل مشكلات الجيل المحلي تقنياً.</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 5) Goals: card over the large, faint logo -->
-        <section id="goals" class="scene scene-goals">
-            <div class="scene-stage">
-                <div class="info-stage">
-                    <div class="glass info-block goals-block">
-                        <h2 class="info-title goals-title">أهدافنا</h2>
-                        <ol class="goals-list">
-                            <li class="goal-item">محو الأمية البرمجية والتقنية.</li>
-                            <li class="goal-item">تأهيل الهواة لسوق العمل الاحترافي.</li>
-                            <li class="goal-item">صناعة قادة ومدربين تقنيين.</li>
-                            <li class="goal-item">حل مشكلات الجيل المحلي تقنياً.</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 6) Values: cards burst out of the center (behind the faint logo) into their row -->
+        <!-- 5) Values: cards burst out of the center (behind the faint logo) into their row -->
         <section id="values" class="scene scene-values">
             <div class="scene-stage">
                 <div class="values-panel">
                     <h2 class="values-title"><span class="title-accent">قيمنا</span> الجوهرية</h2>
                     <div class="values-row">
-                        <div class="glass value-card">
+                        <div class="card value-card">
                             <h3>الشغف</h3>
                             <p>محركنا الدائم للاكتشاف.</p>
                         </div>
-                        <div class="glass value-card">
+                        <div class="card value-card">
                             <h3>العلم للجميع</h3>
                             <p>نقل المعرفة واجب أخلاقي.</p>
                         </div>
-                        <div class="glass value-card">
+                        <div class="card value-card">
                             <h3>الشفافية</h3>
                             <p>فريق واحد، أفكار مفتوحة.</p>
                         </div>
-                        <div class="glass value-card">
+                        <div class="card value-card">
                             <h3>المرونة</h3>
                             <p>نتكيف لنستمر في العطاء.</p>
                         </div>
@@ -279,7 +273,7 @@
         <!-- After the scenes, the page flows normally. Elements with data-reveal
              fade in and rise as they scroll into view (js/main.js); --i staggers them. -->
 
-        <!-- 7) Events: the ABC Workshops seasons on a timeline, then the two big events -->
+        <!-- 6) Events: the ABC Workshops seasons on a timeline, then the two big events -->
         <section id="events" class="section section-events">
             <div class="section-head" data-reveal>
                 <h2 class="section-title">الأحداث <span class="title-accent">والفعاليات</span> الحية</h2>
@@ -291,7 +285,7 @@
                 <ol class="timeline">
                 <li class="season" data-reveal style="--i: 0">
                     <span class="season-node" aria-hidden="true">01</span>
-                    <article class="glass season-card">
+                    <article class="card season-card">
                         <div class="season-meta">
                             <span class="season-name">الموسم الأول</span>
                             <span class="season-tag">اللاذقية</span>
@@ -303,7 +297,7 @@
                 </li>
                 <li class="season" data-reveal style="--i: 1">
                     <span class="season-node" aria-hidden="true">02</span>
-                    <article class="glass season-card">
+                    <article class="card season-card">
                         <div class="season-meta">
                             <span class="season-name">الموسم الثاني</span>
                             <span class="season-tag">اللاذقية</span>
@@ -315,7 +309,7 @@
                 </li>
                 <li class="season" data-reveal style="--i: 2">
                     <span class="season-node" aria-hidden="true">03</span>
-                    <article class="glass season-card">
+                    <article class="card season-card">
                         <div class="season-meta">
                             <span class="season-name">الموسم الثالث</span>
                             <span class="season-tag">التوسع الأول</span>
@@ -327,7 +321,7 @@
                 </li>
                 <li class="season" data-reveal style="--i: 3">
                     <span class="season-node" aria-hidden="true">04</span>
-                    <article class="glass season-card">
+                    <article class="card season-card">
                         <div class="season-meta">
                             <span class="season-name">الموسم الرابع</span>
                             <span class="season-tag">ضيف الشرف</span>
@@ -339,7 +333,7 @@
                 </li>
                 <li class="season" data-reveal style="--i: 4">
                     <span class="season-node" aria-hidden="true">05</span>
-                    <article class="glass season-card">
+                    <article class="card season-card">
                         <div class="season-meta">
                             <span class="season-name">الموسم الخامس</span>
                             <span class="season-tag">عرض حي</span>
@@ -356,7 +350,7 @@
                 <h3 class="events-label" data-reveal>فعاليات كبرى</h3>
                 <div class="big-events">
                     <!-- The biggest event -->
-                    <article class="glass big-event big-event--emcy" data-reveal style="--i: 0">
+                    <article class="card big-event big-event--emcy" data-reveal style="--i: 0">
                         <div class="big-event-top">
                             <span class="big-event-badge" dir="ltr">The EMCY Event</span>
                             <span class="big-event-flag">الأضخم</span>
@@ -371,7 +365,7 @@
                     </article>
 
                     <!-- Latest event: the logo gradient flowing slowly -->
-                    <article class="big-event big-event--tee" data-reveal style="--i: 1">
+                    <article class="card big-event big-event--tee" data-reveal style="--i: 1">
                         <div class="big-event-top">
                             <span class="big-event-badge" dir="ltr">TEE Event</span>
                             <span class="big-event-flag">الأحدث</span>
@@ -389,24 +383,24 @@
             </div>
         </section>
 
-        <!-- 8) Numbers: counters run up when they come into view -->
+        <!-- 7) Numbers: counters run up when they come into view -->
         <section id="stats" class="section section-stats">
             <div class="section-head" data-reveal>
                 <h2 class="section-title">على <span class="title-accent">مدار</span> سنوات</h2>
             </div>
 
             <div class="stats-grid">
-                <div class="glass stat-card" data-reveal style="--i: 0">
+                <div class="card stat-card" data-reveal style="--i: 0">
                     <div class="stat-num" dir="ltr">+<span class="counter" data-target="130">130</span></div>
                     <h3>متطوع</h3>
                     <p>من مختلف المحافظات السورية</p>
                 </div>
-                <div class="glass stat-card" data-reveal style="--i: 1">
+                <div class="card stat-card" data-reveal style="--i: 1">
                     <div class="stat-num" dir="ltr">+<span class="counter" data-target="2100">2,100</span></div>
                     <h3>مستفيد مباشر</h3>
                     <p>تفاعلوا معنا بشكل حيوي وميداني</p>
                 </div>
-                <div class="glass stat-card" data-reveal style="--i: 2">
+                <div class="card stat-card" data-reveal style="--i: 2">
                     <div class="stat-num" dir="ltr">+<span class="counter" data-target="3000000">3,000,000</span></div>
                     <h3>مشاهدة</h3>
                     <p>عبر جميع منصاتنا الرقمية</p>
@@ -416,7 +410,7 @@
             <p class="stats-date" data-reveal>تم إعداد هذه الإحصائيات في شهر سبتمبر (9) سنة 2026</p>
         </section>
 
-        <!-- 9) Contact: details only -->
+        <!-- 8) Contact: details only -->
         <section id="contact" class="section section-contact">
             <div class="section-head" data-reveal>
                 <h2 class="section-title"><span class="title-accent">اتصل</span> بنا</h2>
@@ -424,17 +418,17 @@
             </div>
 
             <div class="contact-grid">
-                <a class="glass contact-card" href="mailto:info@youthguide.net" data-reveal style="--i: 0">
+                <a class="card contact-card" href="mailto:info@youthguide.net" data-reveal style="--i: 0">
                     <span class="contact-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" /></svg></span>
                     <h3>البريد الإلكتروني</h3>
                     <span class="contact-value" dir="ltr">info@youthguide.net</span>
                 </a>
-                <a class="glass contact-card" href="tel:+963959445937" data-reveal style="--i: 1">
+                <a class="card contact-card" href="tel:+963959445937" data-reveal style="--i: 1">
                     <span class="contact-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" /></svg></span>
                     <h3>رقم الهاتف</h3>
                     <span class="contact-value" dir="ltr">+963 959 445 937</span>
                 </a>
-                <div class="glass contact-card" data-reveal style="--i: 2">
+                <div class="card contact-card" data-reveal style="--i: 2">
                     <span class="contact-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" /></svg></span>
                     <h3>تابعنا على منصاتنا</h3>
                     <div class="social-links">
