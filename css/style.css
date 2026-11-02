@@ -42,6 +42,9 @@
     --glass-interaction: 1;                        /* how much the light follows the pointer, 0-1 */
     --glass-shadow: rgba(0, 0, 0, 0.28);
     --glass-accent-tint: rgba(20, 184, 166, 0.16); /* highlighted glass (open why item) */
+    /* Plain cards (.card): the glass look without the backdrop filter, for the many
+       smaller cards; only a few key surfaces use real glass (it's heavy to scroll) */
+    --card-fill: color-mix(in srgb, #0a3338 58%, transparent);
 
     /* Wash over the background (.bg-tone); none in dark mode, see light mode below */
     --theme-tone: transparent;
@@ -126,6 +129,7 @@
     --glass-shadow: rgba(15, 80, 75, 0.14);
     --glass-accent-tint: rgba(20, 184, 166, 0.14);
     --menu-bg: color-mix(in srgb, #e3efec 97%, transparent);
+    --card-fill: rgba(240, 248, 246, 0.55);
 }
 
 /* =========================================================
@@ -199,7 +203,8 @@ footer {
    Light direction comes from js/glass.js: --glass-la (rim angle) and
    --glass-lx / --glass-ly (specular position); defaults = light from top-left.
    ========================================================= */
-.glass {
+.glass,
+.card {
     --glass-la: 135deg;
     --glass-lx: 18%;
     --glass-ly: -10%;
@@ -218,6 +223,14 @@ footer {
         box-shadow 0.3s ease;
 }
 
+/* Plain card: same rim, specular and shadow, no backdrop filter, no hover bounce */
+.card {
+    background: var(--card-fill);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    transition: box-shadow 0.3s ease;
+}
+
 /* Refraction: --glass-filter = url(#…) of this element's own filter */
 .glass.is-refracting {
     -webkit-backdrop-filter: var(--glass-filter) blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(1.04);
@@ -226,7 +239,8 @@ footer {
 
 /* Rim: a 1px gradient edge (masked to the border), brightest toward the light
    and again, softer, on the opposite corner (light passing through) */
-.glass::before {
+.glass::before,
+.card::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -246,7 +260,8 @@ footer {
 }
 
 /* Specular: a soft reflection on the surface, under the content */
-.glass::after {
+.glass::after,
+.card::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -270,7 +285,8 @@ footer {
         0 16px 38px -8px var(--glass-shadow);
 }
 
-.glass:hover::before { opacity: 1; }
+.glass:hover::before,
+.card:hover::before { opacity: 1; }
 .glass:hover::after { opacity: min(1, calc(var(--glass-specular) * 1.3)); }
 
 .glass:active {
@@ -937,7 +953,7 @@ header nav {
 
 /* Open item: accent-tinted glass, the rim lights up in the accent color */
 .why-item.is-active {
-    background-color: var(--glass-accent-tint);
+    background-image: linear-gradient(var(--glass-accent-tint), var(--glass-accent-tint));
     --glass-rim: color-mix(in srgb, var(--color-accent) 85%, white);
 }
 
@@ -1005,9 +1021,19 @@ header nav {
     z-index: 2;
 }
 
+.info-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    width: min(92vw, 1240px);
+    pointer-events: auto;
+}
+
 .info-block {
-    width: min(76vw, 1120px);
-    padding: clamp(1.4rem, 3vw, 2.6rem) clamp(1.4rem, 3.4vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(1.4rem, 2.6vw, 2.4rem) clamp(1.3rem, 2.8vw, 2.6rem);
     border-radius: 28px;
     text-align: center;
 }
@@ -1016,7 +1042,7 @@ header nav {
     margin: 0 0 0.3em;
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
-    font-size: clamp(2.6rem, 5.2vw, 5rem);
+    font-size: clamp(2rem, 3.6vw, 3.6rem);
     line-height: 1.25;
     color: var(--color-accent);
 }
@@ -1025,8 +1051,8 @@ header nav {
     margin: 0;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(1.5rem, 2.9vw, 2.9rem);
-    line-height: 1.6;
+    font-size: clamp(1.25rem, 2.1vw, 2.1rem);
+    line-height: 1.7;
 }
 
 .goals-list {
@@ -1034,7 +1060,7 @@ header nav {
     flex-direction: column;
     margin: 0 auto;
     padding: 0;
-    max-width: 820px;
+    width: 100%;
     list-style: none;
     counter-reset: goal;
     text-align: right;
@@ -1044,9 +1070,9 @@ header nav {
     display: flex;
     gap: 1rem;
     align-items: baseline;
-    padding: 0.7rem 0.2rem;
+    padding: 0.6rem 0.2rem;
     border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
-    font-size: clamp(1.2rem, 2vw, 1.9rem);
+    font-size: clamp(1.05rem, 1.45vw, 1.4rem);
     font-weight: 500;
     line-height: 1.5;
 }
@@ -1161,13 +1187,19 @@ header nav {
 .section-events::before { display: none; }  /* the values scene above already draws one */
 
 /* Last section: tighter, runs straight into the footer */
-.section-contact {
+.section-stats {
     padding-top: clamp(3.5rem, 8vh, 5rem);
-    padding-bottom: 1rem;
+    padding-bottom: clamp(2rem, 5vh, 3rem);
 }
 
+.section-contact {
+    padding-top: clamp(2.5rem, 6vh, 3.5rem);
+    padding-bottom: 0.5rem;
+}
+
+.section-stats .section-head,
 .section-contact .section-head {
-    margin-bottom: clamp(1.6rem, 4vh, 2.4rem);
+    margin-bottom: clamp(1.3rem, 3.5vh, 2rem);
 }
 
 .section-head {
@@ -1426,9 +1458,9 @@ header nav {
 
 .big-event-stat span { font-size: 0.9rem; }
 
-/* EMCY: accent-tinted glass */
+/* EMCY: accent-tinted card */
 .big-event--emcy {
-    background-color: var(--glass-accent-tint);
+    background-image: linear-gradient(var(--glass-accent-tint), var(--glass-accent-tint));
     --glass-rim: color-mix(in srgb, var(--color-accent) 85%, white);
 }
 
@@ -1444,60 +1476,29 @@ header nav {
 
 .big-event--emcy .big-event-stat span { color: var(--color-muted); }
 
-/* TEE: the logo gradient flowing slowly */
-.big-event--tee {
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    color: #fff;
-    background: var(--logo-grad-1);
-    isolation: isolate;
-    box-shadow: 0 18px 46px -16px rgba(7, 166, 204, 0.6);
-}
-
-.big-event--tee::before {
-    content: "";
-    position: absolute;
-    inset: -50% -150% -50% 0;
-    z-index: -1;
-    background: linear-gradient(-45deg, #0a7fa8, var(--logo-grad-1), #0f9f8f, var(--logo-grad-2), #0a7fa8, var(--logo-grad-1), #0f9f8f);
-    animation: gradient-flow 14s ease-in-out infinite alternate;
-    will-change: transform;
-    pointer-events: none;
-}
-
-.big-event--tee::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(70% 90% at 80% 0%, rgba(255, 255, 255, 0.16), transparent 70%);
-    pointer-events: none;
-}
-
-.big-event--tee > * { position: relative; z-index: 1; }
-
+/* TEE: a plain card; its badge, flag and number in the accent */
 .big-event--tee .big-event-badge {
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    background: rgba(255, 255, 255, 0.16);
+    background: var(--glass-accent-tint);
+    color: var(--color-accent);
 }
 
-.big-event--tee h4 { text-shadow: 0 2px 12px rgba(0, 40, 50, 0.3); }
-.big-event--tee .big-event-stat .icon { color: #c9fbf3; }
-.big-event--tee .big-event-stat span { opacity: 0.92; }
+.big-event--tee .big-event-flag,
+.big-event--tee .big-event-stat b,
+.big-event--tee .big-event-stat .icon { color: var(--color-accent); }
 
-@keyframes gradient-flow {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(-55%, 0, 0); }
-}
+.big-event--tee .big-event-stat span { color: var(--color-muted); }
 
 .event-highlight {
-    display: inline-block;
-    margin-inline-start: 0.2rem;
-    padding: 0.1rem 0.8rem;
+    display: block;
+    width: fit-content;
+    margin-top: 0.9rem;
+    padding: 0.2rem 0.9rem;
     border-radius: 10px;
-    background: #fff;
-    color: #0b4d4f;
+    background: linear-gradient(90deg, var(--logo-grad-1), var(--logo-grad-2));
+    color: #04252a;
     font-weight: 800;
     line-height: 1.8;
-    box-shadow: 0 6px 18px -6px rgba(0, 40, 50, 0.45);
+    box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--logo-grad-1) 70%, transparent);
 }
 
 /* Narrower: the timeline turns vertical, numbers on the start side */
@@ -1538,26 +1539,26 @@ header nav {
 }
 
 .stat-card {
-    padding: 2.2rem 1.4rem;
-    border-radius: 26px;
+    padding: 1.5rem 1.2rem;
+    border-radius: 22px;
     text-align: center;
 }
 
 .stat-num {
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.45rem;
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
-    font-size: clamp(2.4rem, 4.4vw, 3.8rem);
+    font-size: clamp(2.1rem, 3.6vw, 3.2rem);
     line-height: 1.1;
     color: var(--color-accent);
     font-variant-numeric: tabular-nums;
 }
 
 .stat-card h3 {
-    margin: 0 0 0.35rem;
+    margin: 0 0 0.2rem;
     font-family: var(--font-display);
     font-weight: var(--font-heading-weight);
-    font-size: clamp(1.25rem, 1.8vw, 1.6rem);
+    font-size: clamp(1.15rem, 1.5vw, 1.4rem);
 }
 
 .stat-card p {
@@ -1567,9 +1568,9 @@ header nav {
 }
 
 .stats-date {
-    margin: 2.4rem 0 0;
+    margin: 1.3rem 0 0;
     color: var(--color-muted);
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     text-align: center;
     opacity: 0.85;
 }
@@ -1587,9 +1588,9 @@ header nav {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.45rem;
-    padding: 1.5rem 1.2rem;
-    border-radius: 22px;
+    gap: 0.35rem;
+    padding: 1.2rem 1rem;
+    border-radius: 20px;
     color: var(--color-text);
     text-align: center;
     text-decoration: none;
@@ -1598,9 +1599,9 @@ header nav {
 .contact-icon {
     display: grid;
     place-items: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 0.25rem;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0.15rem;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--logo-grad-1), var(--logo-grad-2));
     color: #fff;
@@ -1612,7 +1613,7 @@ header nav {
     margin: 0;
     font-family: var(--font-display);
     font-weight: var(--font-heading-weight);
-    font-size: 1.25rem;
+    font-size: 1.15rem;
 }
 
 .contact-value {
@@ -1733,9 +1734,27 @@ footer::before {
     .timeline::before { top: 18px; bottom: 18px; right: 17px; }
     .season-card { padding: 1.1rem 1rem; }
     .big-event-stat { flex-wrap: wrap; }
-    .stat-card { padding: 1.6rem 1.2rem; }
-    .contact-card { padding: 1.3rem 1.1rem; }
-    .contact-grid { gap: 0.7rem; }
+    .stats-grid,
+    .contact-grid { gap: 0.6rem; }
+    .stat-card { padding: 1.1rem 1rem; }
+    .stat-num { font-size: 2.1rem; margin-bottom: 0.25rem; }
+
+    /* Contact: one compact row each, icon on the start side */
+    .contact-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 0.9rem;
+        row-gap: 0.15rem;
+        align-items: center;
+        padding: 0.85rem 1rem;
+        text-align: right;
+    }
+
+    .contact-icon { grid-row: span 2; width: 42px; height: 42px; margin: 0; }
+    .contact-card h3 { font-size: 1.02rem; }
+    .contact-value { font-size: 0.95rem; }
+    .contact-card .social-links { justify-content: flex-start; gap: 0.5rem; }
+    .contact-card .social-links a { width: 36px; height: 36px; }
     [data-reveal] { transition-delay: 0s; }
 }
 
@@ -1784,7 +1803,11 @@ footer::before {
     .why-list { gap: 0.5rem; }
     .why-item { padding: 0.7rem 0.85rem; }
 
-    .info-block { width: calc(100vw - 48px); }
+    .info-pair { grid-template-columns: 1fr; gap: 0.7rem; width: 100%; }
+    .info-block { padding: 1.1rem 1.1rem; border-radius: 22px; }
+    .info-title { font-size: 1.7rem; margin-bottom: 0.15em; }
+    .info-quote { font-size: 1.08rem; line-height: 1.7; }
+    .goal-item { font-size: 0.98rem; padding: 0.4rem 0.1rem; gap: 0.7rem; }
 
     .values-panel { gap: 1.2rem; }
     .values-row {
@@ -1807,7 +1830,6 @@ footer::before {
         transition: none;
     }
 
-    .big-event--tee::before { animation: none; }
 
     .nav-links,
     .nav-links a::after,

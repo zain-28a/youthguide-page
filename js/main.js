@@ -44,19 +44,14 @@ const TIMELINE = {
         end: 1.05,
     },
 
-    // 4) Card over the faint logo
+    // 4) Vision + goals side by side over the faint logo; goals list item by item
     vision: {
-        cardIn:       [0.00, 0.30],
-        end: 0.50,
+        visionIn:     [0.00, 0.28],
+        goalsIn:      [0.08, 0.36],  // goals card; its items follow by MOTION.stagger
+        end: 0.72,
     },
 
-    // 5) Card over the faint logo, items one by one
-    goals: {
-        cardIn:       [0.00, 0.26],
-        end: 0.62,
-    },
-
-    // 6) Title, then the cards burst out of the center into their row
+    // 5) Title, then the cards burst out of the center into their row
     values: {
         titleIn:      [0.00, 0.24],
         cardsIn:      [0.10, 0.42],  // first card; the rest follow by MOTION.cardStagger
@@ -89,13 +84,12 @@ const LIGHTS = [
     { at: 0.45, a: [0.80, 0.48], b: [0.20, 0.85] },  // intro
     { at: 1.50, a: [0.50, 0.30], b: [0.50, 0.85] },  // about
     { at: 2.50, a: [0.25, 0.30], b: [0.78, 0.75] },  // why
-    { at: 3.50, a: [0.50, 0.50], b: [0.50, 0.95] },  // vision
-    { at: 4.50, a: [0.30, 0.15], b: [0.72, 0.85] },  // goals
-    { at: 5.50, a: [0.12, 0.70], b: [0.88, 0.28] },  // values
-    // After the scenes: at = 6 + screens scrolled past the values scene
-    { at: 6.60, a: [0.82, 0.30], b: [0.15, 0.80] },  // events
-    { at: 7.50, a: [0.30, 0.60], b: [0.75, 0.20] },  // numbers
-    { at: 8.20, a: [0.50, 0.85], b: [0.20, 0.25] },  // contact
+    { at: 3.50, a: [0.30, 0.20], b: [0.70, 0.85] },  // vision + goals
+    { at: 4.50, a: [0.12, 0.70], b: [0.88, 0.28] },  // values
+    // After the scenes: at = 5 + screens scrolled past the values scene
+    { at: 5.60, a: [0.82, 0.30], b: [0.15, 0.80] },  // events
+    { at: 6.50, a: [0.30, 0.60], b: [0.75, 0.20] },  // numbers
+    { at: 7.20, a: [0.50, 0.85], b: [0.20, 0.25] },  // contact
 ];
 
 /* =========================================================
@@ -204,7 +198,6 @@ const scenes = [
     { name: 'about', render: renderAbout, logo: logoBack },
     { name: 'why', render: renderWhy, logo: logoBack },
     { name: 'vision', render: renderVision, logo: logoBack },
-    { name: 'goals', render: renderGoals, logo: logoBack },
     { name: 'values', render: renderValues, logo: logoBack },
 ].map((s, i) => {
     const sceneEl = $(`.scene-${s.name}`);
@@ -293,9 +286,10 @@ function renderLogo() {
     const rx = L.rx - state.my * cfg.mouseTilt * L.mouse;
     const ry = L.ry + state.mx * cfg.mouseTilt * L.mouse;
 
-    // The logo's layout box is at the top-left corner: move its center onto (x, y)
+    // The logo's layout box is at the top-left corner: move its center onto (x, y).
+    // Depth (z) keeps the title-sized logo's scale so the 3D tilt looks the same at every size.
     setStyle(logo, 'transform',
-        `translate3d(${r1(x - D.logoW / 2)}px, ${r1(y - D.logoH / 2)}px, 0) scale(${r3(L.h / D.logoH)}) ` +
+        `translate3d(${r1(x - D.logoW / 2)}px, ${r1(y - D.logoH / 2)}px, 0) scale3d(${r3(L.h / D.logoH)}, ${r3(L.h / D.logoH)}, ${r3(D.spots.title.h / D.logoH)}) ` +
         `rotateX(${r1(rx)}deg) rotateY(${r1(ry)}deg)`);
     setStyle(logo, 'opacity', r3(L.op));
     // Resting (e.g. in the background while the page scrolls): no compositor layer,
@@ -363,18 +357,14 @@ function renderWhy(p, T) {
     });
 }
 
-// 4) Vision
+// 4) Vision + goals
 function renderVision(p, T) {
-    reveal(el.visionCard, stage(p, T.cardIn));
+    reveal(el.visionCard, stage(p, T.visionIn));
+    reveal(el.goalsCard, stage(p, T.goalsIn));
+    el.goalItems.forEach((item, i) => reveal(item, staggered(p, T.goalsIn, i + 1, MOTION.stagger)));
 }
 
-// 5) Goals
-function renderGoals(p, T) {
-    reveal(el.goalsCard, stage(p, T.cardIn));
-    el.goalItems.forEach((item, i) => reveal(item, staggered(p, T.cardIn, i + 1, MOTION.stagger)));
-}
-
-// 6) Values: each card grows out of the screen center to its place
+// 5) Values: each card grows out of the screen center to its place
 function renderValues(p, T) {
     reveal(el.valuesTitle, stage(p, T.titleIn));
     el.valueCards.forEach((card, i) => {
@@ -430,7 +420,7 @@ function renderBackground() {
 }
 
 // Nav: marks the link of the section filling most of the screen
-// (a section without its own link, like goals, keeps the previous one)
+// (a section without its own link keeps the previous one)
 let activeLink = null;
 function renderNav() {
     const vh = window.innerHeight;
@@ -556,7 +546,8 @@ function measure() {
     // Logo filters: set once here, not per frame
     $('svg', logoBlur).style.filter = `blur(${cfg.blur * D.logoH / D.spots.start.h}px)`;
     // Depth is designed for the title-sized logo; the layout box is larger, so scale it up to match
-    const u = r3(D.logoH / D.spots.title.h);
+    // (x1.1: matches the thickness the small 1px steps used to render at)
+    const u = r3(1.1 * D.logoH / D.spots.title.h);
     let depth = '';
     for (let i = 0; i < cfg.depth; i++) depth += `drop-shadow(${u}px ${u}px 0 ${cfg.depthColor}) `;
     $('svg', logoSharp).style.filter = `${depth}drop-shadow(0 ${r1(cfg.depth * 2 * u)}px ${r1(cfg.depth * 3 * u)}px ${cfg.shadowColor})`;
