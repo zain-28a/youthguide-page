@@ -77,13 +77,16 @@ const MOTION = {
     mouseLag: 0.14,      // s; same for the mouse
     lead: 0.30,          // timeline units; a scene starts playing this much before it reaches the top
     collapseIdle: 180,   // ms without scrolling before finished scenes collapse
+    lightLag: 0.55,      // s; background lights glide after the scroll on a spring (no jumps, no sudden starts)
+    exitShift: 0.1,      // screen fractions; a finished scene's content trails the scroll as it leaves
 };
 
-/* Background lights. at = scene index + progress through it (0-1);
+/* Background lights. at = scene index + progress through its scroll area (0-1;
+   past the last scene, + screens scrolled);
    a/b = light positions [x, y] as screen fractions. */
 const LIGHTS = [
     { at: 0.00, a: [0.18, 0.50], b: [0.85, 0.18] },  // opening
-    { at: 0.75, a: [0.80, 0.48], b: [0.20, 0.85] },  // intro
+    { at: 0.45, a: [0.80, 0.48], b: [0.20, 0.85] },  // intro
     { at: 1.50, a: [0.50, 0.30], b: [0.50, 0.85] },  // about
     { at: 2.50, a: [0.25, 0.30], b: [0.78, 0.75] },  // why
     { at: 3.50, a: [0.50, 0.50], b: [0.50, 0.95] },  // vision
@@ -91,8 +94,8 @@ const LIGHTS = [
     { at: 5.50, a: [0.12, 0.70], b: [0.88, 0.28] },  // values
     // After the scenes: at = 6 + screens scrolled past the values scene
     { at: 6.60, a: [0.82, 0.30], b: [0.15, 0.80] },  // events
-    { at: 8.20, a: [0.30, 0.60], b: [0.75, 0.20] },  // numbers
-    { at: 9.20, a: [0.50, 0.85], b: [0.20, 0.25] },  // contact
+    { at: 7.50, a: [0.30, 0.60], b: [0.75, 0.20] },  // numbers
+    { at: 8.20, a: [0.50, 0.85], b: [0.20, 0.25] },  // contact
 ];
 
 /* =========================================================
@@ -187,7 +190,8 @@ const D = {};     // layout measurements, from measure()
 
 // Smoothed values ease toward their targets each frame:
 // sy = scroll position (every scene's progress derives from it), mx/my = mouse (-1..1)
-const state = { sy: 0, ty: 0, mx: 0, my: 0, tmx: 0, tmy: 0 };
+// g/tg = position along LIGHTS (smoothed / target)
+const state = { sy: 0, ty: 0, mx: 0, my: 0, tmx: 0, tmy: 0, g: -1, tg: 0, gv: 0 };
 let running = false;
 
 /* =========================================================
@@ -207,6 +211,7 @@ const scenes = [
     return {
         ...s,
         el: sceneEl,
+        stage: $('.scene-stage', sceneEl),
         t: TIMELINE[s.name],
         lead: i ? MOTION.lead : 0,  // the first scene starts at the very top
         top: 0,            // page offset
@@ -266,6 +271,7 @@ function logoBack() {
     return { ...D.spots.back, rx: cfg.tiltBackX, ry: cfg.tiltBackY, op: cfg.backOpacity, mouse: cfg.backMouse, sharp: 1 };
 }
 
+let lastLogoFrame = '';
 function renderLogo() {
     const i = currentScene();
     const s = scenes[i];
@@ -292,6 +298,11 @@ function renderLogo() {
         `translate3d(${r1(x - D.logoW / 2)}px, ${r1(y - D.logoH / 2)}px, 0) scale(${r3(L.h / D.logoH)}) ` +
         `rotateX(${r1(rx)}deg) rotateY(${r1(ry)}deg)`);
     setStyle(logo, 'opacity', r3(L.op));
+    // Resting (e.g. in the background while the page scrolls): no compositor layer,
+    // so it's drawn crisp at its current size
+    const frame = `${logo.style.transform}|${logo.style.opacity}`;
+    logo.classList.toggle('is-idle', frame === lastLogoFrame);
+    lastLogoFrame = frame;
     setStyle(logoBlur, 'opacity', r3(1 - L.sharp));
     setStyle(logoSharp, 'opacity', r3(L.sharp));
 }
@@ -376,24 +387,41 @@ function renderValues(p, T) {
     });
 }
 
+// Where the lights should be: scene index + progress through the scene's whole
+// scroll area. Follows the scroll continuously, whether a scene is playing or done.
+function lightTarget() {
+    const i = currentScene();
+    const s = scenes[i];
+    const vh = window.innerHeight;
+    const isLast = i === scenes.length - 1;
+    const end = isLast ? pinEnd(s) + vh : scenes[i + 1].top;
+    let g = i + clamp((state.sy - s.top) / Math.max(1, end - s.top));
+    if (isLast) g += Math.max(0, state.sy - end) / vh;  // flowing sections
+    return g;
+}
+
 // Background: lights follow the scenes; aura and spot follow the mouse
 function renderBackground() {
-    const i = currentScene();
-    const last = scenes[scenes.length - 1];
-    let g = i + scenes[i].p / scenes[i].t.end;
-    // Past the last scene, keep going by screens scrolled
-    if (i === scenes.length - 1 && last.done) g += Math.max(0, (state.sy - pinEnd(last)) / window.innerHeight);
+    const g = clamp(state.g, LIGHTS[0].at, LIGHTS[LIGHTS.length - 1].at);
 
+    // A smooth curve through the keyframes (Catmull-Rom): the lights flow past
+    // each keyframe instead of stopping on it
     let k = 0;
     while (k < LIGHTS.length - 2 && g >= LIGHTS[k + 1].at) k++;
-    const k0 = LIGHTS[k];
-    const k1 = LIGHTS[k + 1];
-    const t = ease(clamp((g - k0.at) / (k1.at - k0.at)));
+    const u = clamp((g - LIGHTS[k].at) / (LIGHTS[k + 1].at - LIGHTS[k].at));
+    const P = (j) => LIGHTS[clamp(j, 0, LIGHTS.length - 1)];
+    const curve = (key, axis) => {
+        const p0 = P(k - 1)[key][axis];
+        const p1 = P(k)[key][axis];
+        const p2 = P(k + 1)[key][axis];
+        const p3 = P(k + 2)[key][axis];
+        return 0.5 * (2 * p1 + (p2 - p0) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u * u + (3 * p1 - p0 - 3 * p2 + p3) * u * u * u);
+    };
     const W = window.innerWidth;
     const H = window.innerHeight;
-    const at = (a, b) => `translate3d(${Math.round(lerp(a[0], b[0], t) * W)}px, ${Math.round(lerp(a[1], b[1], t) * H)}px, 0)`;
-    setStyle(el.lightA, 'transform', at(k0.a, k1.a));
-    setStyle(el.lightB, 'transform', at(k0.b, k1.b));
+    const at = (key) => `translate3d(${r1(curve(key, 0) * W)}px, ${r1(curve(key, 1) * H)}px, 0)`;
+    setStyle(el.lightA, 'transform', at('a'));
+    setStyle(el.lightB, 'transform', at('b'));
 
     setStyle(el.aura, 'transform',
         `translate3d(${r1(-state.mx * cfg.bgMove)}px, ${r1(-state.my * cfg.bgMove)}px, 0)`);
@@ -419,8 +447,25 @@ function renderNav() {
     activeLink = link;
 }
 
+// A finished scene leaving the screen: its content trails the scroll a little,
+// so it eases out under the next scene instead of sliding off rigidly.
+// Transform only (no opacity), so the glass inside keeps refracting.
+function renderExits() {
+    const vh = window.innerHeight;
+    scenes.forEach((s, i) => {
+        let y = 0;
+        if (s.done && i < scenes.length - 1) {
+            const from = pinEnd(s);
+            const t = clamp((state.sy - from) / Math.max(1, scenes[i + 1].top - from));
+            y = MOTION.exitShift * vh * t * t;
+        }
+        setStyle(s.stage, 'transform', y ? `translate3d(0, ${r1(y)}px, 0)` : 'none');
+    });
+}
+
 function render() {
     scenes.forEach((s) => s.render(s.p, s.t));
+    renderExits();
     renderLogo();
     renderBackground();
     renderNav();
@@ -480,7 +525,7 @@ function measure() {
     readConfig();
     scenes.forEach(layoutScene);
 
-    moving.forEach((node) => {
+    [...moving, ...scenes.map((s) => s.stage)].forEach((node) => {
         node.style.transform = 'none';
         styleCache.delete(node);
     });
@@ -510,16 +555,21 @@ function measure() {
 
     // Logo filters: set once here, not per frame
     $('svg', logoBlur).style.filter = `blur(${cfg.blur * D.logoH / D.spots.start.h}px)`;
+    // Depth is designed for the title-sized logo; the layout box is larger, so scale it up to match
+    const u = r3(D.logoH / D.spots.title.h);
     let depth = '';
-    for (let i = 0; i < cfg.depth; i++) depth += `drop-shadow(1px 1px 0 ${cfg.depthColor}) `;
-    $('svg', logoSharp).style.filter = `${depth}drop-shadow(0 ${cfg.depth * 2}px ${cfg.depth * 3}px ${cfg.shadowColor})`;
+    for (let i = 0; i < cfg.depth; i++) depth += `drop-shadow(${u}px ${u}px 0 ${cfg.depthColor}) `;
+    $('svg', logoSharp).style.filter = `${depth}drop-shadow(0 ${r1(cfg.depth * 2 * u)}px ${r1(cfg.depth * 3 * u)}px ${cfg.shadowColor})`;
 
     measureTops();
     state.sy = state.ty = window.scrollY;
     updateProgress();
     collapseFinished();
+    state.tg = lightTarget();
+    if (state.g < 0) state.g = state.tg;  // first measure: no glide in
     render();
     if (!running) logo.classList.add('is-idle');
+    start();  // glides the lights if the layout moved them
 }
 
 // Progress follows the smoothed scroll. A scene locks (done) once its timeline
@@ -554,6 +604,7 @@ function collapseFinished() {
             state.ty = window.scrollY;
         }
         measureTops();
+        start();  // lights glide to the new layout instead of jumping
     });
 }
 
@@ -574,18 +625,37 @@ function tick(now) {
     state.mx += (state.tmx - state.mx) * follow(MOTION.mouseLag);
     state.my += (state.tmy - state.my) * follow(MOTION.mouseLag);
 
+    updateProgress();
+    state.tg = lightTarget();
+    if (reduceMotion) {
+        state.g = state.tg;
+    } else {
+        // Critically damped spring: speeds up and slows down gently, never snaps
+        const w = 2 / MOTION.lightLag;
+        const x = w * dt;
+        const decay = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+        const change = state.g - state.tg;
+        const temp = (state.gv + w * change) * dt;
+        state.gv = (state.gv - w * temp) * decay;
+        state.g = state.tg + (change + temp) * decay;
+    }
+
     const settled =
         Math.abs(state.ty - state.sy) < 0.5 &&
         Math.abs(state.tmx - state.mx) < 0.001 &&
-        Math.abs(state.tmy - state.my) < 0.001;
+        Math.abs(state.tmy - state.my) < 0.001 &&
+        Math.abs(state.tg - state.g) < 0.002 &&
+        Math.abs(state.gv) < 0.01;
 
     if (settled) {
         state.sy = state.ty;
         state.mx = state.tmx;
         state.my = state.tmy;
+        updateProgress();
+        state.g = state.tg = lightTarget();
+        state.gv = 0;
     }
 
-    updateProgress();
     render();
 
     if (settled) {
@@ -600,7 +670,6 @@ function start() {
     if (running) return;
     running = true;
     lastFrame = performance.now();
-    logo.classList.remove('is-idle');
     requestAnimationFrame(tick);
 }
 
@@ -642,6 +711,19 @@ themeQuery.addEventListener('change', (e) => {
     let saved = null;
     try { saved = localStorage.getItem('theme'); } catch (err) { /* storage blocked */ }
     if (!saved) setTheme(e.matches ? 'light' : 'dark');
+});
+
+// In-page links glide to their section instead of jumping (a jump makes every
+// scene in between flash through its animation in a few frames)
+$$('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+        const target = a.hash && document.getElementById(a.hash.slice(1));
+        if (!target) return;
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+        history.replaceState(null, '', a.hash);
+    });
 });
 
 // Narrow screens: the menu button opens the links as a dropdown
