@@ -14,7 +14,8 @@
 - `js/main.js` — scroll timeline (`TIMELINE`, `MOTION`), the single flying logo,
   nav state and menu. Timeline unit = one screen of scroll.
 - `js/glass.js` — liquid-glass refraction + lighting for every `.glass` element.
-  Real glass is heavy to scroll: keep it to a few key surfaces (nav, about, vision,
-  goals); other cards use `.card` (same look, no backdrop filter).
+  Real glass is heavy to scroll: only the nav bar uses it; every card uses `.card`
+  (same rim and shine, no backdrop filter). Once a scene has played, its content
+  stays put; only hover moves cards slightly.
 - `css/style.css` — tokens on `:root` (dark) and `:root[data-theme="light"]`.
 - Hosted on GitHub Pages from the repo root.
