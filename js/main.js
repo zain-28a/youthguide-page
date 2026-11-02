@@ -77,7 +77,7 @@ const MOTION = {
     mouseLag: 0.14,      // s; same for the mouse
     lead: 0.30,          // timeline units; a scene starts playing this much before it reaches the top
     collapseIdle: 180,   // ms without scrolling before finished scenes collapse
-    lightLag: 0.35,      // s; background lights glide to their place (no jumps when scenes collapse)
+    lightLag: 0.55,      // s; background lights glide after the scroll on a spring (no jumps, no sudden starts)
     exitShift: 0.1,      // screen fractions; a finished scene's content trails the scroll as it leaves
 };
 
@@ -191,7 +191,7 @@ const D = {};     // layout measurements, from measure()
 // Smoothed values ease toward their targets each frame:
 // sy = scroll position (every scene's progress derives from it), mx/my = mouse (-1..1)
 // g/tg = position along LIGHTS (smoothed / target)
-const state = { sy: 0, ty: 0, mx: 0, my: 0, tmx: 0, tmy: 0, g: -1, tg: 0 };
+const state = { sy: 0, ty: 0, mx: 0, my: 0, tmx: 0, tmy: 0, g: -1, tg: 0, gv: 0 };
 let running = false;
 
 /* =========================================================
@@ -271,6 +271,7 @@ function logoBack() {
     return { ...D.spots.back, rx: cfg.tiltBackX, ry: cfg.tiltBackY, op: cfg.backOpacity, mouse: cfg.backMouse, sharp: 1 };
 }
 
+let lastLogoFrame = '';
 function renderLogo() {
     const i = currentScene();
     const s = scenes[i];
@@ -297,6 +298,11 @@ function renderLogo() {
         `translate3d(${r1(x - D.logoW / 2)}px, ${r1(y - D.logoH / 2)}px, 0) scale(${r3(L.h / D.logoH)}) ` +
         `rotateX(${r1(rx)}deg) rotateY(${r1(ry)}deg)`);
     setStyle(logo, 'opacity', r3(L.op));
+    // Resting (e.g. in the background while the page scrolls): no compositor layer,
+    // so it's drawn crisp at its current size
+    const frame = `${logo.style.transform}|${logo.style.opacity}`;
+    logo.classList.toggle('is-idle', frame === lastLogoFrame);
+    lastLogoFrame = frame;
     setStyle(logoBlur, 'opacity', r3(1 - L.sharp));
     setStyle(logoSharp, 'opacity', r3(L.sharp));
 }
@@ -396,18 +402,26 @@ function lightTarget() {
 
 // Background: lights follow the scenes; aura and spot follow the mouse
 function renderBackground() {
-    const g = state.g;
+    const g = clamp(state.g, LIGHTS[0].at, LIGHTS[LIGHTS.length - 1].at);
 
+    // A smooth curve through the keyframes (Catmull-Rom): the lights flow past
+    // each keyframe instead of stopping on it
     let k = 0;
     while (k < LIGHTS.length - 2 && g >= LIGHTS[k + 1].at) k++;
-    const k0 = LIGHTS[k];
-    const k1 = LIGHTS[k + 1];
-    const t = ease(clamp((g - k0.at) / (k1.at - k0.at)));
+    const u = clamp((g - LIGHTS[k].at) / (LIGHTS[k + 1].at - LIGHTS[k].at));
+    const P = (j) => LIGHTS[clamp(j, 0, LIGHTS.length - 1)];
+    const curve = (key, axis) => {
+        const p0 = P(k - 1)[key][axis];
+        const p1 = P(k)[key][axis];
+        const p2 = P(k + 1)[key][axis];
+        const p3 = P(k + 2)[key][axis];
+        return 0.5 * (2 * p1 + (p2 - p0) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u * u + (3 * p1 - p0 - 3 * p2 + p3) * u * u * u);
+    };
     const W = window.innerWidth;
     const H = window.innerHeight;
-    const at = (a, b) => `translate3d(${Math.round(lerp(a[0], b[0], t) * W)}px, ${Math.round(lerp(a[1], b[1], t) * H)}px, 0)`;
-    setStyle(el.lightA, 'transform', at(k0.a, k1.a));
-    setStyle(el.lightB, 'transform', at(k0.b, k1.b));
+    const at = (key) => `translate3d(${r1(curve(key, 0) * W)}px, ${r1(curve(key, 1) * H)}px, 0)`;
+    setStyle(el.lightA, 'transform', at('a'));
+    setStyle(el.lightB, 'transform', at('b'));
 
     setStyle(el.aura, 'transform',
         `translate3d(${r1(-state.mx * cfg.bgMove)}px, ${r1(-state.my * cfg.bgMove)}px, 0)`);
@@ -541,9 +555,11 @@ function measure() {
 
     // Logo filters: set once here, not per frame
     $('svg', logoBlur).style.filter = `blur(${cfg.blur * D.logoH / D.spots.start.h}px)`;
+    // Depth is designed for the title-sized logo; the layout box is larger, so scale it up to match
+    const u = r3(D.logoH / D.spots.title.h);
     let depth = '';
-    for (let i = 0; i < cfg.depth; i++) depth += `drop-shadow(1px 1px 0 ${cfg.depthColor}) `;
-    $('svg', logoSharp).style.filter = `${depth}drop-shadow(0 ${cfg.depth * 2}px ${cfg.depth * 3}px ${cfg.shadowColor})`;
+    for (let i = 0; i < cfg.depth; i++) depth += `drop-shadow(${u}px ${u}px 0 ${cfg.depthColor}) `;
+    $('svg', logoSharp).style.filter = `${depth}drop-shadow(0 ${r1(cfg.depth * 2 * u)}px ${r1(cfg.depth * 3 * u)}px ${cfg.shadowColor})`;
 
     measureTops();
     state.sy = state.ty = window.scrollY;
@@ -611,13 +627,25 @@ function tick(now) {
 
     updateProgress();
     state.tg = lightTarget();
-    state.g += (state.tg - state.g) * follow(reduceMotion ? 0 : MOTION.lightLag);
+    if (reduceMotion) {
+        state.g = state.tg;
+    } else {
+        // Critically damped spring: speeds up and slows down gently, never snaps
+        const w = 2 / MOTION.lightLag;
+        const x = w * dt;
+        const decay = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+        const change = state.g - state.tg;
+        const temp = (state.gv + w * change) * dt;
+        state.gv = (state.gv - w * temp) * decay;
+        state.g = state.tg + (change + temp) * decay;
+    }
 
     const settled =
         Math.abs(state.ty - state.sy) < 0.5 &&
         Math.abs(state.tmx - state.mx) < 0.001 &&
         Math.abs(state.tmy - state.my) < 0.001 &&
-        Math.abs(state.tg - state.g) < 0.002;
+        Math.abs(state.tg - state.g) < 0.002 &&
+        Math.abs(state.gv) < 0.01;
 
     if (settled) {
         state.sy = state.ty;
@@ -625,6 +653,7 @@ function tick(now) {
         state.my = state.tmy;
         updateProgress();
         state.g = state.tg = lightTarget();
+        state.gv = 0;
     }
 
     render();
@@ -641,7 +670,6 @@ function start() {
     if (running) return;
     running = true;
     lastFrame = performance.now();
-    logo.classList.remove('is-idle');
     requestAnimationFrame(tick);
 }
 

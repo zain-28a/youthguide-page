@@ -279,95 +279,113 @@
         <!-- After the scenes, the page flows normally. Elements with data-reveal
              fade in and rise as they scroll into view (js/main.js); --i staggers them. -->
 
-        <!-- 7) Events -->
+        <!-- 7) Events: the ABC Workshops seasons on a timeline, then the two big events -->
         <section id="events" class="section section-events">
             <div class="section-head" data-reveal>
                 <h2 class="section-title">الأحداث <span class="title-accent">والفعاليات</span> الحية</h2>
-                <p class="section-sub">محطة <span dir="ltr">ABC WORKSHOPS (2023 - 2024)</span></p>
-                <p class="section-note">ورشات تدريبية تثقيفية من اليافعين إلى اليافعين</p>
+                <p class="section-sub">ورشات تدريبية تثقيفية من اليافعين إلى اليافعين</p>
             </div>
 
-            <div class="events-grid">
-                <article class="glass event-card" data-reveal style="--i: 0">
-                    <div class="event-meta">
-                        <span class="event-season">الموسم الأول</span>
-                        <span class="event-tag">اللاذقية</span>
-                    </div>
-                    <h3>مقدمة تقنية عامة</h3>
-                    <p class="event-text">بداية الانطلاقة بورشات تثقيفية تقنية تهدف لنشر الوعي الرقمي بين اليافعين.</p>
-                    <div class="event-stat"><b>08</b><span>أفراد حضروا الانطلاقة</span></div>
-                </article>
+            <div class="events-block">
+                <h3 class="events-label" data-reveal>محطة <span dir="ltr">ABC WORKSHOPS</span> <span class="events-years" dir="ltr">2023 - 2024</span></h3>
+                <ol class="timeline">
+                <li class="season" data-reveal style="--i: 0">
+                    <span class="season-node" aria-hidden="true">01</span>
+                    <article class="glass season-card">
+                        <div class="season-meta">
+                            <span class="season-name">الموسم الأول</span>
+                            <span class="season-tag">اللاذقية</span>
+                        </div>
+                        <h4>مقدمة تقنية عامة</h4>
+                        <p>بداية الانطلاقة بورشات تثقيفية تقنية تهدف لنشر الوعي الرقمي بين اليافعين.</p>
+                        <div class="season-stats"><div class="season-stat"><b>08</b><span>أفراد حضروا الانطلاقة</span></div></div>
+                    </article>
+                </li>
+                <li class="season" data-reveal style="--i: 1">
+                    <span class="season-node" aria-hidden="true">02</span>
+                    <article class="glass season-card">
+                        <div class="season-meta">
+                            <span class="season-name">الموسم الثاني</span>
+                            <span class="season-tag">اللاذقية</span>
+                        </div>
+                        <h4>أدوات الذكاء الصنعي واستخدامها</h4>
+                        <p>التعمق في تقنيات الذكاء الاصطناعي الحديثة وكيفية تسخيرها في التعلم والإبداع.</p>
+                        <div class="season-stats"><div class="season-stat"><b>51</b><span>فرد حضروا الورشة</span></div></div>
+                    </article>
+                </li>
+                <li class="season" data-reveal style="--i: 2">
+                    <span class="season-node" aria-hidden="true">03</span>
+                    <article class="glass season-card">
+                        <div class="season-meta">
+                            <span class="season-name">الموسم الثالث</span>
+                            <span class="season-tag">التوسع الأول</span>
+                        </div>
+                        <h4>المهارات الناعمة وأهميتها للشباب</h4>
+                        <p>التوسع ليشمل مدينتي اللاذقية وطرطوس للتركيز على المهارات الشخصية والقيادية.</p>
+                        <div class="season-stats"><div class="season-stat"><b>87</b><span>شخص في اللاذقية</span></div><div class="season-stat"><b>164</b><span>شخص في طرطوس</span></div></div>
+                    </article>
+                </li>
+                <li class="season" data-reveal style="--i: 3">
+                    <span class="season-node" aria-hidden="true">04</span>
+                    <article class="glass season-card">
+                        <div class="season-meta">
+                            <span class="season-name">الموسم الرابع</span>
+                            <span class="season-tag">ضيف الشرف</span>
+                        </div>
+                        <h4>سوق العمل التقني</h4>
+                        <p>بحضور مهندس الذكاء الصنعي علي فيوض.</p>
+                        <div class="season-stats"><div class="season-stat"><b>240</b><span>اللاذقية</span></div><div class="season-stat"><b>40</b><span>طرطوس</span></div></div>
+                    </article>
+                </li>
+                <li class="season" data-reveal style="--i: 4">
+                    <span class="season-node" aria-hidden="true">05</span>
+                    <article class="glass season-card">
+                        <div class="season-meta">
+                            <span class="season-name">الموسم الخامس</span>
+                            <span class="season-tag">عرض حي</span>
+                        </div>
+                        <h4>كيف تنجز مشروع برمجي</h4>
+                        <p>بمشاركة الأستاذ حسان الخطيب، وتضمن الموسم عرض نسخة تجريبية حقيقية لموقع ويب كنموذج عملي.</p>
+                        <div class="season-stats"><div class="season-stat"><b>150</b><span>شخص حضروا العرض</span></div></div>
+                    </article>
+                </li>
+                </ol>
+            </div>
 
-                <article class="glass event-card" data-reveal style="--i: 1">
-                    <div class="event-meta">
-                        <span class="event-season">الموسم الثاني</span>
-                        <span class="event-tag">اللاذقية</span>
-                    </div>
-                    <h3>أدوات الذكاء الصنعي واستخدامها</h3>
-                    <p class="event-text">التعمق في تقنيات الذكاء الاصطناعي الحديثة وكيفية تسخيرها في التعلم والإبداع.</p>
-                    <div class="event-stat"><b>51</b><span>فرد حضروا الورشة</span></div>
-                </article>
+            <div class="events-block">
+                <h3 class="events-label" data-reveal>فعاليات كبرى</h3>
+                <div class="big-events">
+                    <!-- The biggest event -->
+                    <article class="glass big-event big-event--emcy" data-reveal style="--i: 0">
+                        <div class="big-event-top">
+                            <span class="big-event-badge" dir="ltr">The EMCY Event</span>
+                            <span class="big-event-flag">الأضخم</span>
+                        </div>
+                        <h4>إعلان صامت متعدد</h4>
+                        <p>تجربة فريدة بمشاركة <strong>30 متطوعاً</strong> أبدعوا في تنظيم هذا الحدث الاستثنائي.</p>
+                        <div class="big-event-stat">
+                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                            <b>721</b>
+                            <span>شخصاً شهدوا هذا الإنجاز</span>
+                        </div>
+                    </article>
 
-                <article class="glass event-card" data-reveal style="--i: 2">
-                    <div class="event-meta">
-                        <span class="event-season">الموسم الثالث</span>
-                        <span class="event-tag event-tag--accent">التوسع الأول</span>
-                    </div>
-                    <h3>المهارات الناعمة وأهميتها للشباب</h3>
-                    <p class="event-text">التوسع ليشمل مدينتي اللاذقية وطرطوس للتركيز على المهارات الشخصية والقيادية.</p>
-                    <div class="event-cities">
-                        <div><b>87</b><span>شخص في اللاذقية</span></div>
-                        <div><b>164</b><span>شخص في طرطوس</span></div>
-                    </div>
-                </article>
-
-                <article class="glass event-card" data-reveal style="--i: 0">
-                    <div class="event-meta">
-                        <span class="event-season">الموسم الرابع</span>
-                        <span class="event-tag">ضيف الشرف</span>
-                    </div>
-                    <h3>سوق العمل التقني</h3>
-                    <p class="event-guest">بحضور مهندس الذكاء الصنعي علي فيوض</p>
-                    <div class="event-cities">
-                        <div><b>240</b><span>اللاذقية</span></div>
-                        <div><b>40</b><span>طرطوس</span></div>
-                    </div>
-                </article>
-
-                <article class="glass event-card" data-reveal style="--i: 1">
-                    <div class="event-meta">
-                        <span class="event-season">الموسم الخامس</span>
-                        <span class="event-tag">عرض حي</span>
-                    </div>
-                    <h3>كيف تنجز مشروع برمجي</h3>
-                    <p class="event-guest">بمشاركة الأستاذ حسان الخطيب</p>
-                    <p class="event-text">تضمن الموسم عرض نسخة تجريبية حقيقية لموقع ويب كنموذج عملي.</p>
-                    <div class="event-stat"><b>150</b><span>شخص حضروا العرض</span></div>
-                </article>
-
-                <!-- The biggest event: highlighted -->
-                <article class="glass event-card event-card--featured" data-reveal style="--i: 2">
-                    <span class="event-ribbon">الأضخم</span>
-                    <div class="event-meta">
-                        <span class="event-season event-season--en" dir="ltr">The EMCY Event</span>
-                    </div>
-                    <h3>إعلان صامت متعدد</h3>
-                    <p class="event-text">تجربة فريدة بمشاركة <strong>30 متطوعاً</strong> أبدعوا في تنظيم هذا الحدث الاستثنائي.</p>
-                    <div class="event-stat event-stat--big"><b>721</b><span>شخصاً شهدوا هذا الإنجاز</span></div>
-                </article>
-
-                <!-- Latest event: full width, flowing logo gradient -->
-                <article class="event-wide" data-reveal>
-                    <span class="event-badge" dir="ltr">TEE Event</span>
-                    <h3>مقترحات لتطوير التعليم الثانوي</h3>
-                    <p>استعرض فريق دليل الشباب الإيجابيات والنقاط القابلة للتحسين في التعليم السوري، وخرج بـ
-                        <span class="event-highlight">9 بنود قابلة للتطبيق بتكلفة 0$</span></p>
-                    <div class="event-wide-stat">
-                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                        <b>525</b>
-                        <span>شخصاً حضروا الفعالية التفاعلية</span>
-                    </div>
-                </article>
+                    <!-- Latest event: the logo gradient flowing slowly -->
+                    <article class="big-event big-event--tee" data-reveal style="--i: 1">
+                        <div class="big-event-top">
+                            <span class="big-event-badge" dir="ltr">TEE Event</span>
+                            <span class="big-event-flag">الأحدث</span>
+                        </div>
+                        <h4>مقترحات لتطوير التعليم الثانوي</h4>
+                        <p>استعرض فريق دليل الشباب الإيجابيات والنقاط القابلة للتحسين في التعليم السوري، وخرج بـ
+                            <span class="event-highlight">9 بنود قابلة للتطبيق بتكلفة 0$</span></p>
+                        <div class="big-event-stat">
+                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                            <b>525</b>
+                            <span>شخصاً حضروا الفعالية التفاعلية</span>
+                        </div>
+                    </article>
+                </div>
             </div>
         </section>
 
