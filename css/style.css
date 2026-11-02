@@ -41,7 +41,7 @@
     --glass-specular: 0.8;                         /* specular intensity, 0-1 */
     --glass-interaction: 1;                        /* how much the light follows the pointer, 0-1 */
     --glass-shadow: rgba(0, 0, 0, 0.28);
-    --glass-accent-tint: rgba(20, 184, 166, 0.16); /* highlighted glass (open why item) */
+    --glass-accent-tint: rgba(20, 184, 166, 0.16); /* highlighted surfaces */
     /* Cards (.card): the glass look without the backdrop filter (real glass is heavy
        to scroll, so only the nav bar uses it). Dark teal with a little transparency. */
     --card-fill: rgba(4, 22, 25, 0.72);
@@ -957,13 +957,6 @@ header nav {
     padding: 0.85rem 1.15rem;
     border-radius: 16px;
     text-align: right;
-    transition: background-color 0.3s ease;
-}
-
-/* Open item: accent-tinted glass, the rim lights up in the accent color */
-.why-item.is-active {
-    background-image: linear-gradient(var(--glass-accent-tint), var(--glass-accent-tint));
-    --glass-rim: color-mix(in srgb, var(--color-accent) 85%, white);
 }
 
 .why-num {
@@ -987,11 +980,9 @@ header nav {
     font-weight: var(--font-heading-weight);
     font-size: var(--panel-item-title-size);
     line-height: 1.4;
-    transition: color 0.3s ease;
 }
 
 .why-item.is-active .why-num { opacity: 1; }
-.why-item.is-active h3 { color: var(--color-accent); }
 
 /* Opens with a 0fr -> 1fr height transition */
 .why-body {
@@ -1729,102 +1720,171 @@ footer::before {
     opacity: 0.8;
 }
 
-@media (max-width: 768px) {
-    .big-events,
-    .stats-grid,
-    .contact-grid {
-        grid-template-columns: 1fr;
-        width: 100%;
+/* Mobile content flows at its natural height; desktop keeps its pinned scenes. */
+@media (max-width: 768px), (max-width: 1000px) and (pointer: coarse) {
+    :root {
+        --intro-title-size: clamp(2rem, 8vw, 2.8rem);
+        --panel-title-size: clamp(1.65rem, 6.5vw, 2.2rem);
+        --panel-text-size: 1rem;
+        --panel-item-title-size: 1.1rem;
     }
 
-    .events-block { width: 100%; }
-    .season { gap: 0.75rem; }
-    .season-node { width: 36px; height: 36px; font-size: 0.88rem; }
-    .timeline::before { top: 18px; bottom: 18px; right: 17px; }
-    .season-card { padding: 1.1rem 1rem; }
-    .big-event-stat { flex-wrap: wrap; }
-    .stats-grid,
-    .contact-grid { gap: 0.6rem; }
-    .stat-card { padding: 1.1rem 1rem; }
-    .stat-num { font-size: 2.1rem; margin-bottom: 0.25rem; }
+    html {
+        scroll-padding-top: 96px;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+    header { padding: max(12px, env(safe-area-inset-top)) 16px 0; }
+    header nav { gap: 0.5rem; padding: 0.4rem; }
+    .brand { min-width: 0; gap: 0.5rem; font-size: 1.1rem; padding-right: 0.35rem; }
+    .brand svg { height: 1.9rem; flex-shrink: 0; }
+    .theme-toggle, .menu-toggle { width: 44px; height: 44px; flex-shrink: 0; }
+    .nav-links { max-height: calc(100svh - 100px); overflow-y: auto; overscroll-behavior: contain; }
+    .nav-links a { min-height: 44px; padding: 0.65rem 1rem; }
 
-    /* Contact: one compact row each, icon on the start side */
+    .logo-fly, .logo-spot, .hero-final, .scroll-hint { display: none; }
+    .scene { height: auto; scroll-margin-top: 96px; }
+    .scene-stage {
+        position: relative;
+        top: auto;
+        height: auto;
+        overflow: visible;
+        padding: 40px 20px;
+    }
+    .scene::after { opacity: 0.55; transform: none; }
+    .panel, .panel.panel--center, .info-stage, .values-panel {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0;
+        pointer-events: auto;
+    }
+    .intro-text, .about-card, .about-text, .why-title, .why-item,
+    .info-block, .goal-item, .values-title, .value-card {
+        opacity: 1;
+        will-change: auto;
+    }
+    .panel-title { white-space: normal; line-height: 1.5; margin-bottom: 0.65em; }
+    .panel-text, .why-body > p { line-height: 1.9; }
+
+    .scene-hero .scene-stage {
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        padding-top: 112px;
+        padding-bottom: 48px;
+        text-align: center;
+    }
+    .scene-hero .scene-stage::before {
+        content: '';
+        display: block;
+        width: clamp(92px, 27vw, 136px);
+        aspect-ratio: 1093 / 1530;
+        background: linear-gradient(160deg, var(--logo-grad-1), var(--logo-grad-2));
+        -webkit-mask: url('../assets/images/logo.svg') center / contain no-repeat;
+        mask: url('../assets/images/logo.svg') center / contain no-repeat;
+    }
+    .hero-slogan {
+        position: static;
+        flex-wrap: wrap;
+        font-size: clamp(1.6rem, 7vw, 2.4rem);
+        line-height: 1.6;
+        white-space: normal;
+    }
+    .slogan-start, .word-dalil {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+        will-change: auto;
+    }
+    .panel-intro { align-items: center; gap: 0.5rem; }
+    .intro-title-ghost { margin: 0; }
+    .intro-title-ghost span { visibility: visible; }
+    .intro-text { max-width: 32em; }
+    .about-card { padding: 1.5rem 1.25rem; border-radius: 22px; }
+    .about-text { font-size: 1rem; line-height: 2; }
+
+    .why-list { gap: 0.85rem; }
+    .why-item { padding: 1.1rem; column-gap: 0.75rem; text-align: start; }
+    .why-num { opacity: 1; }
+    .why-body { grid-template-rows: 1fr; opacity: 1; transition: none; }
+    .why-body > p { overflow: visible; padding-top: 0.5rem; }
+
+    .info-pair { grid-template-columns: minmax(0, 1fr); width: 100%; gap: 1rem; }
+    .info-block { padding: 1.5rem 1.25rem; border-radius: 22px; }
+    .info-title { font-size: var(--panel-title-size); line-height: 1.5; margin-bottom: 0.5rem; }
+    .info-quote { font-size: 1.15rem; line-height: 1.9; }
+    .goal-item { font-size: 1rem; line-height: 1.8; padding: 0.7rem 0; gap: 0.75rem; }
+    .values-panel { gap: 1.5rem; }
+    .values-row { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 0.85rem; }
+    .value-card { padding: 1.2rem 1rem; }
+    .value-card h3 { font-size: 1.2rem; }
+    .value-card p { font-size: 0.95rem; line-height: 1.8; }
+
+    .section { padding: 40px 20px; scroll-margin-top: 96px; }
+    .section-head { margin-bottom: 1.75rem; }
+    .section-sub { font-size: 1rem; line-height: 1.8; }
+    .events-block, .stats-grid, .contact-grid { width: 100%; max-width: 600px; }
+    .events-block + .events-block { margin-top: 2.25rem; }
+    .events-label { gap: 0.6rem; flex-wrap: wrap; justify-content: center; white-space: normal; line-height: 1.7; text-align: center; }
+    .events-label::before, .events-label::after { min-width: 12px; }
+    .timeline { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+    .timeline::before { top: 18px; bottom: 18px; right: 17px; left: auto; width: 2px; height: auto; }
+    .season { flex-direction: row; align-items: flex-start; gap: 0.85rem; min-width: 0; }
+    .season-node { width: 36px; height: 36px; flex-shrink: 0; font-size: 0.9rem; }
+    .season-card { min-width: 0; padding: 1.15rem 1rem; gap: 0.75rem; border-radius: 18px; }
+    .season-meta { flex-wrap: wrap; gap: 0.3rem 0.75rem; line-height: 1.6; }
+    .season-card h4 { font-size: 1.1rem; }
+    .season-card p { font-size: 0.95rem; }
+    .season-stat { min-width: 0; }
+    .season-stat span, .season-stat + .season-stat span { font-size: 0.75rem; white-space: normal; line-height: 1.7; }
+    .season-stat b { font-size: 1.5rem; }
+    .big-events, .stats-grid, .contact-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+    .big-event { padding: 1.5rem 1.25rem; border-radius: 22px; }
+    .big-event h4 { font-size: 1.45rem; line-height: 1.6; }
+    .big-event p { font-size: 1rem; line-height: 1.9; }
+    .big-event-top, .big-event-stat { flex-wrap: wrap; }
+    .big-event-stat b { font-size: 2.25rem; }
+    .event-highlight { max-width: 100%; font-size: 0.95rem; }
+    .stat-card { padding: 1.4rem; }
+    .stat-num { font-size: 2.3rem; }
     .contact-card {
         display: grid;
-        grid-template-columns: auto 1fr;
-        column-gap: 0.9rem;
-        row-gap: 0.15rem;
-        align-items: center;
-        padding: 0.85rem 1rem;
-        text-align: right;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 0.25rem 0.85rem;
+        padding: 1.1rem;
+        text-align: start;
     }
-
-    .contact-icon { grid-row: span 2; width: 42px; height: 42px; margin: 0; }
-    .contact-card h3 { font-size: 1.02rem; }
-    .contact-value { font-size: 0.95rem; }
-    .contact-card .social-links { justify-content: flex-start; gap: 0.5rem; }
-    .contact-card .social-links a { width: 36px; height: 36px; }
+    .contact-icon { grid-row: span 2; width: 44px; height: 44px; margin: 0; }
+    .contact-card h3 { font-size: 1.05rem; }
+    .contact-value { font-size: 0.95rem; overflow-wrap: anywhere; }
+    .contact-card .social-links { justify-content: flex-start; flex-wrap: wrap; gap: 0.5rem; }
+    .social-links a { width: 44px; height: 44px; }
+    footer { padding: 2rem 20px max(1.5rem, env(safe-area-inset-bottom)); gap: 0.85rem; }
+    .footer-tagline { font-size: 1.25rem; }
+    .card:hover { translate: none; }
     [data-reveal] { transition-delay: 0s; }
 }
 
-/* =========================================================
-   Mobile: side logos on top, text below
-   ========================================================= */
-@media (max-width: 768px) {
-    :root {
-        --logo-side-height: 24vh;
-        --logo-side-gap: 14vw;
-        --intro-title-size: clamp(1.9rem, 9vw, 2.6rem);
-        --panel-title-size: clamp(1.7rem, 8vw, 2.3rem);
-        --panel-text-size: 0.95rem;
-        --panel-item-title-size: 1.02rem;
+@media (max-width: 359px) {
+    .values-row { grid-template-columns: minmax(0, 1fr); }
+    .scene-stage, .section { padding-right: 16px; padding-left: 16px; }
+    .brand { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @media (max-width: 768px), (max-width: 1000px) and (pointer: coarse) {
+        .scene.is-mobile-visible .scene-stage { animation: mobile-section-in 0.5s ease both; }
+        @keyframes mobile-section-in {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: none; }
+        }
     }
-
-    header { padding: 0.75rem 16px; }
-    header nav { padding: 0.4rem 0.4rem 0.4rem 0.45rem; }
-    .brand { font-size: 1.12rem; padding-right: 0.5rem; }
-    .brand svg { height: 1.8rem; }
-
-    .logo-spot--right {
-        top: 9vh;
-    }
-
-    .panel {
-        top: 38vh;
-        bottom: auto;
-        left: 16px;
-        right: 16px;
-        width: auto;
-        justify-content: flex-start;
-    }
-
-    .panel.panel--center {
-        top: 0;
-        bottom: 0;
-        justify-content: center;
-    }
-
-    .panel-text,
-    .why-body > p {
-        line-height: 1.7;
-    }
-
-    .why-list { gap: 0.5rem; }
-    .why-item { padding: 0.7rem 0.85rem; }
-
-    .info-pair { grid-template-columns: 1fr; gap: 0.7rem; width: 100%; }
-    .info-block { padding: 1.1rem 1.1rem; border-radius: 22px; }
-    .info-title { font-size: 1.7rem; margin-bottom: 0.15em; }
-    .info-quote { font-size: 1.08rem; line-height: 1.7; }
-    .goal-item { font-size: 0.98rem; padding: 0.4rem 0.1rem; gap: 0.7rem; }
-
-    .values-panel { gap: 1.2rem; }
-    .values-row {
-        grid-template-columns: 1fr 1fr;
-        width: 100%;
-        gap: 0.6rem;
-    }
-    .value-card { padding: 1rem 0.7rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -177,6 +177,8 @@ function delta(from, to) {
    State
    ========================================================= */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Touch layouts use flowing content instead of viewport-pinned timelines.
+const mobileLayout = window.matchMedia('(max-width: 768px), (max-width: 1000px) and (pointer: coarse)');
 
 let cfg = {};     // CSS variables, read in readConfig()
 const D = {};     // layout measurements, from measure()
@@ -436,8 +438,10 @@ function renderNav() {
 }
 
 function render() {
-    scenes.forEach((s) => s.render(s.p, s.t));
-    renderLogo();
+    if (!mobileLayout.matches) {
+        scenes.forEach((s) => s.render(s.p, s.t));
+        renderLogo();
+    }
     renderBackground();
     renderNav();
 }
@@ -477,7 +481,7 @@ function readConfig() {
 
 // Playing: tall enough to scroll through the timeline (minus the lead). Collapsed: one screen.
 function layoutScene(s) {
-    s.el.style.height = s.collapsed ? '' : `${(s.t.end - s.lead + 1) * 100}vh`;
+    s.el.style.height = mobileLayout.matches || s.collapsed ? '' : `${(s.t.end - s.lead + 1) * 100}vh`;
 }
 
 // Scenes + the flowing sections after them (for the nav)
@@ -495,6 +499,24 @@ function measureTops() {
 function measure() {
     readConfig();
     scenes.forEach(layoutScene);
+
+    if (mobileLayout.matches) {
+        state.mx = state.my = state.tmx = state.tmy = 0;
+        el.spot.classList.remove('is-active');
+        moving.forEach((node) => {
+            node.style.removeProperty('transform');
+            node.style.removeProperty('opacity');
+            styleCache.delete(node);
+        });
+        el.whyItems.forEach((item) => item.classList.add('is-active'));
+        measureTops();
+        state.sy = state.ty = window.scrollY;
+        state.tg = lightTarget();
+        if (state.g < 0) state.g = state.tg;
+        render();
+        start();
+        return;
+    }
 
     moving.forEach((node) => {
         node.style.transform = 'none';
@@ -547,6 +569,7 @@ function measure() {
 // Progress follows the smoothed scroll. A scene locks (done) once its timeline
 // has fully played, so it never jumps to its end state.
 function updateProgress() {
+    if (mobileLayout.matches) return;
     const vh = window.innerHeight;
     scenes.forEach((s) => {
         if (s.done) return;
@@ -562,6 +585,7 @@ function updateProgress() {
 // correcting the scroll position mid-scroll would cut off the browser's smooth
 // scrolling. The correction keeps everything visually in place.
 function collapseFinished() {
+    if (mobileLayout.matches) return;
     scenes.forEach((s) => {
         if (!s.done || s.collapsed) return;
         const y = window.scrollY;  // read first: the browser clamps it once the page gets shorter
@@ -653,7 +677,7 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 window.addEventListener('mousemove', (e) => {
-    if (reduceMotion) return;
+    if (reduceMotion || mobileLayout.matches) return;
     state.tmx = (e.clientX / window.innerWidth) * 2 - 1;
     state.tmy = (e.clientY / window.innerHeight) * 2 - 1;
     el.spot.classList.add('is-active');
@@ -692,7 +716,8 @@ $$('a[href^="#"]').forEach((a) => {
         const target = a.hash && document.getElementById(a.hash.slice(1));
         if (!target) return;
         e.preventDefault();
-        const top = target.getBoundingClientRect().top + window.scrollY;
+        const inset = mobileLayout.matches ? $('header').getBoundingClientRect().bottom + 16 : 0;
+        const top = target.getBoundingClientRect().top + window.scrollY - inset;
         window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
         history.replaceState(null, '', a.hash);
     });
@@ -717,6 +742,10 @@ document.addEventListener('keydown', (e) => {
 
 // Re-measure on resize, at most once per frame
 let resizeQueued = false;
+mobileLayout.addEventListener('change', () => {
+    setMenu(false);
+    measure();
+});
 window.addEventListener('resize', () => {
     if (resizeQueued) return;
     resizeQueued = true;
@@ -729,6 +758,18 @@ window.addEventListener('resize', () => {
 measure();
 // Web fonts change text metrics
 if (document.fonts) document.fonts.ready.then(measure);
+
+// Reveal each mobile section once, without changing its height or scroll position.
+if ('IntersectionObserver' in window) {
+    const mobileObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-mobile-visible');
+            mobileObserver.unobserve(entry.target);
+        });
+    }, { threshold: 0, rootMargin: '0px 0px -32px 0px' });
+    scenes.forEach((s) => mobileObserver.observe(s.el));
+}
 
 /* =========================================================
    Flowing sections: reveal on view + counters
