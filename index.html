@@ -79,27 +79,48 @@
     </div>
 
     <header>
-        <nav class="glass">
-            <ul>
-                <li><a href="#hero">الرئيسية</a></li>
+        <nav class="glass" aria-label="القائمة الرئيسية">
+            <!-- Brand: logo + name, as on youthguide.net -->
+            <a class="brand" href="#hero" aria-label="دليل الشباب - الرئيسية">
+                <svg viewBox="0 0 1093 1530" aria-hidden="true">
+                    <path fill="url(#yg-grad)" d="M0 60A185 185 0 0 1 265 55L543 335L840 40A175 175 0 0 1 1093 60L330 825A292 292 0 1 0 808 897L614 1091A98 98 0 1 1 476 953L820 615L888 677A485 485 0 1 1 202 677L405 478Z"/>
+                </svg>
+                <span>دليل الشباب</span>
+            </a>
+
+            <!-- Links: inline on wide screens, a dropdown behind .menu-toggle on narrow ones -->
+            <ul class="nav-links" id="nav-links">
                 <li><a href="#about">من نحن</a></li>
                 <li><a href="#why">لم نحن</a></li>
                 <li><a href="#vision">رؤيتنا</a></li>
                 <li><a href="#values">قيمنا</a></li>
+                <li><a href="#events">فعالياتنا</a></li>
+                <li><a href="#stats">أرقامنا</a></li>
+                <li><a href="#contact">اتصل بنا</a></li>
             </ul>
 
-            <!-- Dark / light toggle; shows the moon in dark mode, the sun in light mode -->
-            <button class="theme-toggle" type="button" aria-label="تبديل الوضع الفاتح / الداكن">
-                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-                </svg>
-                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="12" cy="12" r="4.5" />
-                    <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" />
-                </svg>
-            </button>
-        </nav>
+            <div class="nav-actions">
+                <!-- Dark / light toggle; shows the moon in dark mode, the sun in light mode -->
+                <button class="theme-toggle" type="button" aria-label="تبديل الوضع الفاتح / الداكن">
+                    <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+                    </svg>
+                    <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4.5" />
+                        <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" />
+                    </svg>
+                </button>
 
+                <!-- Menu button (narrow screens) -->
+                <button class="menu-toggle" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="nav-links">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="menu-line menu-line--1" d="M4 7h16" />
+                        <path class="menu-line menu-line--2" d="M4 12h16" />
+                        <path class="menu-line menu-line--3" d="M4 17h16" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
     </header>
 
     <main>
@@ -168,14 +189,11 @@
             </div>
         </section>
 
-        <!-- 3) Why: logo on the left, list revealed item by item -->
+        <!-- 3) Why: centered list over the large, faint logo, revealed item by item -->
         <section id="why" class="scene scene-why">
             <div class="scene-stage">
 
-                <!-- Logo spot: left -->
-                <div class="logo-spot logo-spot--left" aria-hidden="true"></div>
-
-                <div class="panel panel--right panel-why">
+                <div class="panel panel--center panel-why">
                     <h2 class="panel-title why-title"><span class="title-accent">لم</span> نحن</h2>
 
                     <!-- One item expanded at a time (.is-active) -->
@@ -258,9 +276,173 @@
             </div>
         </section>
 
+        <!-- After the scenes, the page flows normally. Elements with data-reveal
+             fade in and rise as they scroll into view (js/main.js); --i staggers them. -->
+
+        <!-- 7) Events -->
+        <section id="events" class="section section-events">
+            <div class="section-head" data-reveal>
+                <h2 class="section-title">الأحداث <span class="title-accent">والفعاليات</span> الحية</h2>
+                <p class="section-sub">محطة <span dir="ltr">ABC WORKSHOPS (2023 - 2024)</span></p>
+                <p class="section-note">ورشات تدريبية تثقيفية من اليافعين إلى اليافعين</p>
+            </div>
+
+            <div class="events-grid">
+                <article class="glass event-card" data-reveal style="--i: 0">
+                    <div class="event-meta">
+                        <span class="event-season">الموسم الأول</span>
+                        <span class="event-tag">اللاذقية</span>
+                    </div>
+                    <h3>مقدمة تقنية عامة</h3>
+                    <p class="event-text">بداية الانطلاقة بورشات تثقيفية تقنية تهدف لنشر الوعي الرقمي بين اليافعين.</p>
+                    <div class="event-stat"><b>08</b><span>أفراد حضروا الانطلاقة</span></div>
+                </article>
+
+                <article class="glass event-card" data-reveal style="--i: 1">
+                    <div class="event-meta">
+                        <span class="event-season">الموسم الثاني</span>
+                        <span class="event-tag">اللاذقية</span>
+                    </div>
+                    <h3>أدوات الذكاء الصنعي واستخدامها</h3>
+                    <p class="event-text">التعمق في تقنيات الذكاء الاصطناعي الحديثة وكيفية تسخيرها في التعلم والإبداع.</p>
+                    <div class="event-stat"><b>51</b><span>فرد حضروا الورشة</span></div>
+                </article>
+
+                <article class="glass event-card" data-reveal style="--i: 2">
+                    <div class="event-meta">
+                        <span class="event-season">الموسم الثالث</span>
+                        <span class="event-tag event-tag--accent">التوسع الأول</span>
+                    </div>
+                    <h3>المهارات الناعمة وأهميتها للشباب</h3>
+                    <p class="event-text">التوسع ليشمل مدينتي اللاذقية وطرطوس للتركيز على المهارات الشخصية والقيادية.</p>
+                    <div class="event-cities">
+                        <div><b>87</b><span>شخص في اللاذقية</span></div>
+                        <div><b>164</b><span>شخص في طرطوس</span></div>
+                    </div>
+                </article>
+
+                <article class="glass event-card" data-reveal style="--i: 0">
+                    <div class="event-meta">
+                        <span class="event-season">الموسم الرابع</span>
+                        <span class="event-tag">ضيف الشرف</span>
+                    </div>
+                    <h3>سوق العمل التقني</h3>
+                    <p class="event-guest">بحضور مهندس الذكاء الصنعي علي فيوض</p>
+                    <div class="event-cities">
+                        <div><b>240</b><span>اللاذقية</span></div>
+                        <div><b>40</b><span>طرطوس</span></div>
+                    </div>
+                </article>
+
+                <article class="glass event-card" data-reveal style="--i: 1">
+                    <div class="event-meta">
+                        <span class="event-season">الموسم الخامس</span>
+                        <span class="event-tag">عرض حي</span>
+                    </div>
+                    <h3>كيف تنجز مشروع برمجي</h3>
+                    <p class="event-guest">بمشاركة الأستاذ حسان الخطيب</p>
+                    <p class="event-text">تضمن الموسم عرض نسخة تجريبية حقيقية لموقع ويب كنموذج عملي.</p>
+                    <div class="event-stat"><b>150</b><span>شخص حضروا العرض</span></div>
+                </article>
+
+                <!-- The biggest event: highlighted -->
+                <article class="glass event-card event-card--featured" data-reveal style="--i: 2">
+                    <span class="event-ribbon">الأضخم</span>
+                    <div class="event-meta">
+                        <span class="event-season event-season--en" dir="ltr">The EMCY Event</span>
+                    </div>
+                    <h3>إعلان صامت متعدد</h3>
+                    <p class="event-text">تجربة فريدة بمشاركة <strong>30 متطوعاً</strong> أبدعوا في تنظيم هذا الحدث الاستثنائي.</p>
+                    <div class="event-stat event-stat--big"><b>721</b><span>شخصاً شهدوا هذا الإنجاز</span></div>
+                </article>
+
+                <!-- Latest event: full width, flowing logo gradient -->
+                <article class="event-wide" data-reveal>
+                    <span class="event-badge" dir="ltr">TEE Event</span>
+                    <h3>مقترحات لتطوير التعليم الثانوي</h3>
+                    <p>استعرض فريق دليل الشباب الإيجابيات والنقاط القابلة للتحسين في التعليم السوري، وخرج بـ
+                        <span class="event-highlight">9 بنود قابلة للتطبيق بتكلفة 0$</span></p>
+                    <div class="event-wide-stat">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                        <b>525</b>
+                        <span>شخصاً حضروا الفعالية التفاعلية</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 8) Numbers: counters run up when they come into view -->
+        <section id="stats" class="section section-stats">
+            <div class="section-head" data-reveal>
+                <h2 class="section-title">على <span class="title-accent">مدار</span> سنوات</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="glass stat-card" data-reveal style="--i: 0">
+                    <div class="stat-num" dir="ltr">+<span class="counter" data-target="130">130</span></div>
+                    <h3>متطوع</h3>
+                    <p>من مختلف المحافظات السورية</p>
+                </div>
+                <div class="glass stat-card" data-reveal style="--i: 1">
+                    <div class="stat-num" dir="ltr">+<span class="counter" data-target="2100">2,100</span></div>
+                    <h3>مستفيد مباشر</h3>
+                    <p>تفاعلوا معنا بشكل حيوي وميداني</p>
+                </div>
+                <div class="glass stat-card" data-reveal style="--i: 2">
+                    <div class="stat-num" dir="ltr">+<span class="counter" data-target="3000000">3,000,000</span></div>
+                    <h3>مشاهدة</h3>
+                    <p>عبر جميع منصاتنا الرقمية</p>
+                </div>
+            </div>
+
+            <p class="stats-date" data-reveal>تم إعداد هذه الإحصائيات في شهر سبتمبر (9) سنة 2026</p>
+        </section>
+
+        <!-- 9) Contact: details only -->
+        <section id="contact" class="section section-contact">
+            <div class="section-head" data-reveal>
+                <h2 class="section-title"><span class="title-accent">اتصل</span> بنا</h2>
+                <p class="section-sub">نحن هنا للإجابة على استفساراتكم وبناء شراكات جديدة</p>
+            </div>
+
+            <div class="contact-grid">
+                <a class="glass contact-card" href="mailto:info@youthguide.net" data-reveal style="--i: 0">
+                    <span class="contact-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" /></svg></span>
+                    <h3>البريد الإلكتروني</h3>
+                    <span class="contact-value" dir="ltr">info@youthguide.net</span>
+                </a>
+                <a class="glass contact-card" href="tel:+963959445937" data-reveal style="--i: 1">
+                    <span class="contact-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" /></svg></span>
+                    <h3>رقم الهاتف</h3>
+                    <span class="contact-value" dir="ltr">+963 959 445 937</span>
+                </a>
+                <div class="glass contact-card" data-reveal style="--i: 2">
+                    <span class="contact-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" /></svg></span>
+                    <h3>تابعنا على منصاتنا</h3>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/share/1BQqpP5Mby/" target="_blank" rel="noopener" aria-label="فيسبوك"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg></a>
+                        <a href="https://www.instagram.com/youthguideoffical" target="_blank" rel="noopener" aria-label="إنستغرام"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.4A4 4 0 1 1 12.6 8 4 4 0 0 1 16 11.4zM17.5 6.5h.01" /></svg></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer>
+        <div class="footer-brand">
+            <svg viewBox="0 0 1093 1530" aria-hidden="true">
+                <path fill="url(#yg-grad)" d="M0 60A185 185 0 0 1 265 55L543 335L840 40A175 175 0 0 1 1093 60L330 825A292 292 0 1 0 808 897L614 1091A98 98 0 1 1 476 953L820 615L888 677A485 485 0 1 1 202 677L405 478Z"/>
+            </svg>
+            <span>دليل الشباب</span>
+        </div>
+        <div class="social-links">
+            <a href="https://www.facebook.com/share/1BQqpP5Mby/" target="_blank" rel="noopener" aria-label="فيسبوك"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg></a>
+            <a href="https://www.instagram.com/youthguideoffical" target="_blank" rel="noopener" aria-label="إنستغرام"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.4A4 4 0 1 1 12.6 8 4 4 0 0 1 16 11.4zM17.5 6.5h.01" /></svg></a>
+        </div>
+        <p class="footer-text">نحن هنا لنضع بصمة الشباب السوري على خارطة الابتكار العالمي. شكراً لثقتكم بنا.</p>
+        <p class="footer-tagline">إنما الإنسان دليل</p>
+        <p class="footer-copy"><span dir="ltr">© <span class="footer-year">2026</span> Youth Guide</span> - جميع الحقوق محفوظة</p>
     </footer>
 
 </body>
