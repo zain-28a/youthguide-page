@@ -11,18 +11,32 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Changa:wght@600;700;800&family=Alexandria:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <script src="js/man.js" defer></script>
+
+    <!-- Theme before first paint (no flash): the saved choice, else the browser's -->
+    <script>
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem('theme'); } catch (e) {}
+            var light = window.matchMedia('(prefers-color-scheme: light)').matches;
+            document.documentElement.dataset.theme = saved || (light ? 'light' : 'dark');
+        })();
+    </script>
+    <script src="js/main.js" defer></script>
+    <script src="js/glass.js" defer></script>
 </head>
 
 <body>
 
-    <!-- Shared logo gradient -->
+    <!-- Shared SVG defs -->
     <svg class="svg-defs" aria-hidden="true" focusable="false">
         <defs>
+            <!-- Logo gradient -->
             <linearGradient id="yg-grad" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0" class="grad-stop-1" />
                 <stop offset="1" class="grad-stop-2" />
             </linearGradient>
+
+            <!-- Liquid glass refraction filters, one per .glass element, are added here by js/glass.js -->
         </defs>
     </svg>
 
@@ -37,42 +51,69 @@
     </div>
     <div class="aura-spot" aria-hidden="true"></div>
 
+    <!-- Theme tone over the background: clear in dark mode, a soft light wash in light mode -->
+    <div class="bg-tone" aria-hidden="true"></div>
+
     <!-- Scroll-driven lights; positions in LIGHTS (JS) -->
     <div class="bg-lights" aria-hidden="true">
         <div class="bg-light bg-light--a"></div>
         <div class="bg-light bg-light--b"></div>
     </div>
 
+    <!-- The one logo that draws every scene. Fixed, behind the content; JS moves it
+         onto each scene's .logo-spot and flies it from one scene to the next.
+         Blurred + sharp copies crossfade (cheaper than animating blur). -->
+    <div class="logo-fly" aria-hidden="true">
+        <div class="hero-logo">
+            <div class="logo-layer logo-blur">
+                <svg viewBox="0 0 1093 1530">
+                    <path fill="url(#yg-grad)" d="M0 60A185 185 0 0 1 265 55L543 335L840 40A175 175 0 0 1 1093 60L330 825A292 292 0 1 0 808 897L614 1091A98 98 0 1 1 476 953L820 615L888 677A485 485 0 1 1 202 677L405 478Z"/>
+                </svg>
+            </div>
+            <div class="logo-layer logo-sharp">
+                <svg viewBox="0 0 1093 1530">
+                    <path fill="url(#yg-grad)" d="M0 60A185 185 0 0 1 265 55L543 335L840 40A175 175 0 0 1 1093 60L330 825A292 292 0 1 0 808 897L614 1091A98 98 0 1 1 476 953L820 615L888 677A485 485 0 1 1 202 677L405 478Z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
     <header>
-        <nav>
+        <nav class="glass">
             <ul>
                 <li><a href="#hero">الرئيسية</a></li>
-                <li><a href="#intro">مقدمة</a></li>
                 <li><a href="#about">من نحن</a></li>
                 <li><a href="#why">لم نحن</a></li>
                 <li><a href="#vision">رؤيتنا</a></li>
                 <li><a href="#values">قيمنا</a></li>
             </ul>
+
+            <!-- Dark / light toggle; shows the moon in dark mode, the sun in light mode -->
+            <button class="theme-toggle" type="button" aria-label="تبديل الوضع الفاتح / الداكن">
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+                </svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4.5" />
+                    <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" />
+                </svg>
+            </button>
         </nav>
 
     </header>
 
     <main>
 
-        <!-- Scroll-driven scene; height set by JS from TIMELINE.end -->
-        <section id="hero" class="hero">
+        <!-- Each scene pins its stage while its animation plays, then locks on its
+             final state and collapses to a normal section. Height set by JS. -->
 
-            <!-- Nav targets; JS positions each at its stage -->
-            <div id="intro" class="scene-anchor" data-at="introText"></div>
-            <div id="about" class="scene-anchor" data-at="aboutIn"></div>
-            <div id="why" class="scene-anchor" data-at="whyIn"></div>
-            <div id="vision" class="scene-anchor" data-at="visionIn"></div>
-            <div id="values" class="scene-anchor" data-at="cardsIn"></div>
+        <!-- 1) Opening + Intro -->
+        <section id="hero" class="scene scene-hero">
 
-            <div class="hero-stage">
+            <div class="scene-stage">
 
-                <!-- Measurement-only: logo start spot -->
-                <div class="logo-start" aria-hidden="true"></div>
+                <!-- Logo spot: start (large, blurred, on the left) -->
+                <div class="logo-spot logo-spot--start" aria-hidden="true"></div>
 
                 <!-- Initial slogan -->
                 <h1 class="hero-slogan" aria-label="إنما الإنسان دليل">
@@ -80,30 +121,17 @@
                     <span class="word-dalil">دليل</span>
                 </h1>
 
-                <!-- Logo sits at its center position; JS offsets it from there.
-                     Blurred + sharp copies crossfade (cheaper than animating blur). -->
+                <!-- Final title, with the logo's spot above it -->
                 <div class="hero-final">
-                    <div class="hero-logo" aria-hidden="true">
-                        <div class="logo-layer logo-blur">
-                            <svg viewBox="0 0 1093 1530">
-                                <path fill="url(#yg-grad)" d="M0 60A185 185 0 0 1 265 55L543 335L840 40A175 175 0 0 1 1093 60L330 825A292 292 0 1 0 808 897L614 1091A98 98 0 1 1 476 953L820 615L888 677A485 485 0 1 1 202 677L405 478Z"/>
-                            </svg>
-                        </div>
-                        <div class="logo-layer logo-sharp">
-                            <svg viewBox="0 0 1093 1530">
-                                <path fill="url(#yg-grad)" d="M0 60A185 185 0 0 1 265 55L543 335L840 40A175 175 0 0 1 1093 60L330 825A292 292 0 1 0 808 897L614 1091A98 98 0 1 1 476 953L820 615L888 677A485 485 0 1 1 202 677L405 478Z"/>
-                            </svg>
-                        </div>
-                    </div>
+                    <div class="logo-spot logo-spot--title" aria-hidden="true"></div>
                     <h2 class="final-title">
                         <span class="final-dalil" aria-hidden="true">دليل</span>
                         <span class="word-shabab">الشباب</span>
                     </h2>
                 </div>
 
-                <!-- Measurement-only: logo spots for intro (right) / about (left) -->
+                <!-- Logo spot: intro (right) -->
                 <div class="logo-spot logo-spot--right" aria-hidden="true"></div>
-                <div class="logo-spot logo-spot--left" aria-hidden="true"></div>
 
                 <!-- Intro; ghost title is the landing spot for the moving words -->
                 <div class="panel panel--left panel-intro">
@@ -114,93 +142,117 @@
                     <p class="panel-text intro-text">مجتمع شبابي في سوريا، يخلق المهارات الإعلانية، التقنية والحياتية ويطورها بشغف.</p>
                 </div>
 
-                <!-- About -> Why -->
-                <div class="panel panel--right panel-about">
-                    <h2 class="panel-title about-title">
-                        <span class="swap-word">
-                            <span class="word-man">من</span>
-                            <span class="word-lam" aria-hidden="true">لم</span>
-                        </span>
-                        نحن
-                    </h2>
+                <div class="scroll-hint" aria-hidden="true">
+                    <span></span>
+                </div>
 
-                    <!-- About text and Why list stacked; crossfaded by JS -->
-                    <div class="panel-body">
+            </div>
+        </section>
+
+        <!-- 2) About: centered text over the large, faint logo -->
+        <section id="about" class="scene scene-about">
+            <div class="scene-stage">
+
+                <!-- Logo spot: large and faint behind the text (also used by vision, goals, values) -->
+                <div class="logo-spot logo-spot--back" aria-hidden="true"></div>
+
+                <div class="panel panel--center panel-about">
+                    <div class="glass about-card">
+                        <h2 class="panel-title"><span class="title-accent">من</span> نحن</h2>
                         <p class="panel-text about-text">نحن مجموعة من اليافعين والشباب، اجتمعنا لنبني بيئة تعليمية متكاملة تمكّن أقراننا من امتلاك الثقافة
                             ومشاركتها، لأن العلم لا يعرف احتكار! نعمل بمبدأ "تدريب اليافعين باليافعين" ونؤمن أن الإبداع لا يعرف
                             عمراً.</p>
+                    </div>
+                </div>
 
-                        <!-- One item expanded at a time (.is-active) -->
-                        <div class="why-list">
-                            <div class="why-item">
-                                <span class="why-num"></span>
-                                <h3>لغة الجيل</h3>
-                                <div class="why-body"><p>المعلومة بين الأقران (Peer-to-Peer) تنتقل بشغف وسلاسة لا توفرها القاعات الأكاديمية التقليدية.</p></div>
-                            </div>
-                            <div class="why-item">
-                                <span class="why-num"></span>
-                                <h3>المرونة والسرعة</h3>
-                                <div class="why-body"><p>نواكب طفرات التكنولوجيا والذكاء الاصطناعي والإعلانات المعاصرة بتسارع يتناسب مع واقعنا.</p></div>
-                            </div>
-                            <div class="why-item">
-                                <span class="why-num"></span>
-                                <h3>بيئة آمنة للإبداع</h3>
-                                <div class="why-body"><p>مكان لتجريب ما تعلمه الشباب، حيث الخطأ جزء من التعلم، والدعم يأتي من أصدقاء يشبهونهم.</p></div>
-                            </div>
+            </div>
+        </section>
+
+        <!-- 3) Why: logo on the left, list revealed item by item -->
+        <section id="why" class="scene scene-why">
+            <div class="scene-stage">
+
+                <!-- Logo spot: left -->
+                <div class="logo-spot logo-spot--left" aria-hidden="true"></div>
+
+                <div class="panel panel--right panel-why">
+                    <h2 class="panel-title why-title"><span class="title-accent">لم</span> نحن</h2>
+
+                    <!-- One item expanded at a time (.is-active) -->
+                    <div class="why-list">
+                        <div class="glass glass--crystal why-item">
+                            <span class="why-num"></span>
+                            <h3>لغة الجيل</h3>
+                            <div class="why-body"><p>المعلومة بين الأقران (Peer-to-Peer) تنتقل بشغف وسلاسة لا توفرها القاعات الأكاديمية التقليدية.</p></div>
+                        </div>
+                        <div class="glass glass--crystal why-item">
+                            <span class="why-num"></span>
+                            <h3>المرونة والسرعة</h3>
+                            <div class="why-body"><p>نواكب طفرات التكنولوجيا والذكاء الاصطناعي والإعلانات المعاصرة بتسارع يتناسب مع واقعنا.</p></div>
+                        </div>
+                        <div class="glass glass--crystal why-item">
+                            <span class="why-num"></span>
+                            <h3>بيئة آمنة للإبداع</h3>
+                            <div class="why-body"><p>مكان لتجريب ما تعلمه الشباب، حيث الخطأ جزء من التعلم، والدعم يأتي من أصدقاء يشبهونهم.</p></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Measurement-only: center spot before lens -->
-                <div class="logo-spot logo-spot--center" aria-hidden="true"></div>
+            </div>
+        </section>
 
-                <!-- Lens: logo-shaped mask revealing vision/goals -->
-                <div class="lens">
-                    <div class="lens-content">
-                        <div class="lens-block vision-block">
-                            <h2 class="lens-title">رؤيتنا</h2>
-                            <p class="lens-quote">"أن نصبح أكبر مجتمع رقمي شبابي عربياً، يقود التحول من مستهلكين للتكنولوجيا إلى صنّاع ومصدرين لها."</p>
-                        </div>
-
-                        <div class="lens-block goals-block">
-                            <h2 class="lens-title goals-title">أهدافنا</h2>
-                            <ol class="goals-list">
-                                <li class="goal-item">محو الأمية البرمجية والتقنية.</li>
-                                <li class="goal-item">تأهيل الهواة لسوق العمل الاحترافي.</li>
-                                <li class="goal-item">صناعة قادة ومدربين تقنيين.</li>
-                                <li class="goal-item">حل مشكلات الجيل المحلي تقنياً.</li>
-                            </ol>
-                        </div>
+        <!-- 4) Vision: card over the large, faint logo -->
+        <section id="vision" class="scene scene-vision">
+            <div class="scene-stage">
+                <div class="info-stage">
+                    <div class="glass info-block vision-block">
+                        <h2 class="info-title">رؤيتنا</h2>
+                        <p class="info-quote">"أن نصبح أكبر مجتمع رقمي شبابي عربياً، يقود التحول من مستهلكين للتكنولوجيا إلى صنّاع ومصدرين لها."</p>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Shards injected by JS; each becomes a value card -->
-                <div class="shards" aria-hidden="true"></div>
+        <!-- 5) Goals: card over the large, faint logo -->
+        <section id="goals" class="scene scene-goals">
+            <div class="scene-stage">
+                <div class="info-stage">
+                    <div class="glass info-block goals-block">
+                        <h2 class="info-title goals-title">أهدافنا</h2>
+                        <ol class="goals-list">
+                            <li class="goal-item">محو الأمية البرمجية والتقنية.</li>
+                            <li class="goal-item">تأهيل الهواة لسوق العمل الاحترافي.</li>
+                            <li class="goal-item">صناعة قادة ومدربين تقنيين.</li>
+                            <li class="goal-item">حل مشكلات الجيل المحلي تقنياً.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
 
+        <!-- 6) Values: cards burst out of the center (behind the faint logo) into their row -->
+        <section id="values" class="scene scene-values">
+            <div class="scene-stage">
                 <div class="values-panel">
-                    <h2 class="values-title"><span class="values-accent">قيمنا</span> الجوهرية</h2>
+                    <h2 class="values-title"><span class="title-accent">قيمنا</span> الجوهرية</h2>
                     <div class="values-row">
-                        <div class="value-card">
+                        <div class="glass value-card">
                             <h3>الشغف</h3>
                             <p>محركنا الدائم للاكتشاف.</p>
                         </div>
-                        <div class="value-card">
+                        <div class="glass value-card">
                             <h3>العلم للجميع</h3>
                             <p>نقل المعرفة واجب أخلاقي.</p>
                         </div>
-                        <div class="value-card">
+                        <div class="glass value-card">
                             <h3>الشفافية</h3>
                             <p>فريق واحد، أفكار مفتوحة.</p>
                         </div>
-                        <div class="value-card">
+                        <div class="glass value-card">
                             <h3>المرونة</h3>
                             <p>نتكيف لنستمر في العطاء.</p>
                         </div>
                     </div>
-                </div>
-
-                <div class="scroll-hint" aria-hidden="true">
-                    <span></span>
                 </div>
 
             </div>
