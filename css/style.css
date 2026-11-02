@@ -43,8 +43,8 @@
     --glass-shadow: rgba(0, 0, 0, 0.28);
     --glass-accent-tint: rgba(20, 184, 166, 0.16); /* highlighted glass (open why item) */
     /* Cards (.card): the glass look without the backdrop filter (real glass is heavy
-       to scroll, so only the nav bar uses it). A light, clear teal like the glass. */
-    --card-fill: rgba(150, 235, 225, 0.075);
+       to scroll, so only the nav bar uses it). Dark teal with a little transparency. */
+    --card-fill: rgba(4, 22, 25, 0.72);
 
     /* Wash over the background (.bg-tone); none in dark mode, see light mode below */
     --theme-tone: transparent;
