@@ -89,6 +89,10 @@ const LIGHTS = [
     { at: 3.50, a: [0.50, 0.50], b: [0.50, 0.95] },  // vision
     { at: 4.50, a: [0.30, 0.15], b: [0.72, 0.85] },  // goals
     { at: 5.50, a: [0.12, 0.70], b: [0.88, 0.28] },  // values
+    // After the scenes: at = 6 + screens scrolled past the values scene
+    { at: 6.60, a: [0.82, 0.30], b: [0.15, 0.80] },  // events
+    { at: 8.20, a: [0.30, 0.60], b: [0.75, 0.20] },  // numbers
+    { at: 9.20, a: [0.50, 0.85], b: [0.20, 0.25] },  // contact
 ];
 
 /* =========================================================
@@ -375,7 +379,10 @@ function renderValues(p, T) {
 // Background: lights follow the scenes; aura and spot follow the mouse
 function renderBackground() {
     const i = currentScene();
-    const g = i + scenes[i].p / scenes[i].t.end;
+    const last = scenes[scenes.length - 1];
+    let g = i + scenes[i].p / scenes[i].t.end;
+    // Past the last scene, keep going by screens scrolled
+    if (i === scenes.length - 1 && last.done) g += Math.max(0, (state.sy - pinEnd(last)) / window.innerHeight);
 
     let k = 0;
     while (k < LIGHTS.length - 2 && g >= LIGHTS[k + 1].at) k++;
@@ -394,15 +401,17 @@ function renderBackground() {
         `translate3d(${Math.round((state.mx + 1) / 2 * W)}px, ${Math.round((state.my + 1) / 2 * H)}px, 0)`);
 }
 
-// Nav: marks the link of the scene filling most of the screen
-// (a scene without its own link, like goals, keeps the previous one)
+// Nav: marks the link of the section filling most of the screen
+// (a section without its own link, like goals, keeps the previous one)
 let activeLink = null;
 function renderNav() {
-    const mid = state.sy + window.innerHeight / 2;
+    const vh = window.innerHeight;
+    const atBottom = state.sy >= document.documentElement.scrollHeight - vh - 2;
+    const mid = state.sy + vh / 2;
     let link = null;
-    scenes.forEach((s) => {
-        if (s.top > mid) return;
-        link = el.navLinks.find((a) => a.hash === `#${s.el.id}`) || link;
+    sectionTops.forEach(({ id, top }, k) => {
+        if (top > mid && !(atBottom && k === sectionTops.length - 1)) return;
+        link = el.navLinks.find((a) => a.hash === `#${id}`) || link;
     });
     if (link === activeLink) return;
     if (activeLink) activeLink.removeAttribute('aria-current');
@@ -455,8 +464,16 @@ function layoutScene(s) {
     s.el.style.height = s.collapsed ? '' : `${(s.t.end - s.lead + 1) * 100}vh`;
 }
 
+// Scenes + the flowing sections after them (for the nav)
+const flowSections = $$('main > .section');
+let sectionTops = [];
+
 function measureTops() {
     scenes.forEach((s) => { s.top = s.el.getBoundingClientRect().top + window.scrollY; });
+    sectionTops = [...scenes.map((s) => s.el), ...flowSections].map((node) => ({
+        id: node.id,
+        top: node.getBoundingClientRect().top + window.scrollY,
+    }));
 }
 
 function measure() {
@@ -658,6 +675,41 @@ window.addEventListener('resize', () => {
 measure();
 // Web fonts change text metrics
 if (document.fonts) document.fonts.ready.then(measure);
+
+/* =========================================================
+   Flowing sections: reveal on view + counters
+   ========================================================= */
+const counterFormat = new Intl.NumberFormat('en-US');
+
+// Counts a number up from 0 with an ease-out
+function runCounter(node) {
+    const target = Number(node.dataset.target);
+    if (reduceMotion || !target) return;
+    const duration = 1600;
+    const t0 = performance.now();
+    const step = (now) => {
+        const t = clamp((now - t0) / duration);
+        node.textContent = counterFormat.format(Math.round(target * (1 - Math.pow(1 - t, 3))));
+        if (t < 1) requestAnimationFrame(step);
+    };
+    node.textContent = '0';
+    requestAnimationFrame(step);
+}
+
+const revealed = $$('[data-reveal]');
+if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            $$('.counter', entry.target).forEach(runCounter);
+            io.unobserve(entry.target);
+        });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+    revealed.forEach((node) => io.observe(node));
+} else {
+    revealed.forEach((node) => node.classList.add('is-visible'));
+}
 
 // Footer year
 $('.footer-year').textContent = new Date().getFullYear();
