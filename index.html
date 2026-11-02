@@ -79,27 +79,47 @@
     </div>
 
     <header>
-        <nav class="glass">
-            <ul>
+        <nav class="glass" aria-label="القائمة الرئيسية">
+            <!-- Brand: logo + name, as on youthguide.net -->
+            <a class="brand" href="#hero" aria-label="دليل الشباب - الرئيسية">
+                <svg viewBox="0 0 1093 1530" aria-hidden="true">
+                    <path fill="url(#yg-grad)" d="M0 60A185 185 0 0 1 265 55L543 335L840 40A175 175 0 0 1 1093 60L330 825A292 292 0 1 0 808 897L614 1091A98 98 0 1 1 476 953L820 615L888 677A485 485 0 1 1 202 677L405 478Z"/>
+                </svg>
+                <span>دليل الشباب</span>
+            </a>
+
+            <!-- Links: inline on wide screens, a dropdown behind .menu-toggle on narrow ones -->
+            <ul class="nav-links" id="nav-links">
                 <li><a href="#hero">الرئيسية</a></li>
                 <li><a href="#about">من نحن</a></li>
                 <li><a href="#why">لم نحن</a></li>
                 <li><a href="#vision">رؤيتنا</a></li>
+                <li><a href="#goals">أهدافنا</a></li>
                 <li><a href="#values">قيمنا</a></li>
             </ul>
 
-            <!-- Dark / light toggle; shows the moon in dark mode, the sun in light mode -->
-            <button class="theme-toggle" type="button" aria-label="تبديل الوضع الفاتح / الداكن">
-                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-                </svg>
-                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="12" cy="12" r="4.5" />
-                    <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" />
-                </svg>
-            </button>
-        </nav>
+            <div class="nav-actions">
+                <!-- Dark / light toggle; shows the moon in dark mode, the sun in light mode -->
+                <button class="theme-toggle" type="button" aria-label="تبديل الوضع الفاتح / الداكن">
+                    <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+                    </svg>
+                    <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4.5" />
+                        <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" />
+                    </svg>
+                </button>
 
+                <!-- Menu button (narrow screens) -->
+                <button class="menu-toggle" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="nav-links">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="menu-line menu-line--1" d="M4 7h16" />
+                        <path class="menu-line menu-line--2" d="M4 12h16" />
+                        <path class="menu-line menu-line--3" d="M4 17h16" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
     </header>
 
     <main>
@@ -168,14 +188,11 @@
             </div>
         </section>
 
-        <!-- 3) Why: logo on the left, list revealed item by item -->
+        <!-- 3) Why: centered list over the large, faint logo, revealed item by item -->
         <section id="why" class="scene scene-why">
             <div class="scene-stage">
 
-                <!-- Logo spot: left -->
-                <div class="logo-spot logo-spot--left" aria-hidden="true"></div>
-
-                <div class="panel panel--right panel-why">
+                <div class="panel panel--center panel-why">
                     <h2 class="panel-title why-title"><span class="title-accent">لم</span> نحن</h2>
 
                     <!-- One item expanded at a time (.is-active) -->
@@ -261,6 +278,14 @@
     </main>
 
     <footer>
+        <div class="footer-brand">
+            <svg viewBox="0 0 1093 1530" aria-hidden="true">
+                <path fill="url(#yg-grad)" d="M0 60A185 185 0 0 1 265 55L543 335L840 40A175 175 0 0 1 1093 60L330 825A292 292 0 1 0 808 897L614 1091A98 98 0 1 1 476 953L820 615L888 677A485 485 0 1 1 202 677L405 478Z"/>
+            </svg>
+            <span>دليل الشباب</span>
+        </div>
+        <p class="footer-tagline">إنما الإنسان دليل</p>
+        <p class="footer-copy">© <span class="footer-year">2026</span> دليل الشباب</p>
     </footer>
 
 </body>

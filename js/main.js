@@ -17,50 +17,50 @@
 const TIMELINE = {
     // 1) Slogan -> logo + "دليل الشباب" -> intro (logo right, title, text)
     hero: {
-        hint:         [0.00, 0.05],
-        sloganOut:    [0.00, 0.18],
-        dalilMove:    [0.08, 0.36],  // "دليل" slogan -> title
-        shabab:       [0.30, 0.48],  // "الشباب" fades in
-        logoMove:     [0.06, 0.56],  // logo start -> title
-        logoSharpen:  [0.18, 0.45],  // blurred -> sharp
-        introMove:    [0.54, 1.00],  // logo -> right, title -> intro title
-        introText:    [0.82, 1.08],
-        end: 1.25,                   // every scene ends with a short hold
+        hint:         [0.00, 0.04],
+        sloganOut:    [0.00, 0.12],
+        dalilMove:    [0.05, 0.25],  // "دليل" slogan -> title
+        shabab:       [0.20, 0.33],  // "الشباب" fades in
+        logoMove:     [0.04, 0.38],  // logo start -> title
+        logoSharpen:  [0.12, 0.30],  // blurred -> sharp
+        introMove:    [0.38, 0.68],  // logo -> right, title -> intro title
+        introText:    [0.56, 0.74],
+        end: 0.85,                   // every scene ends with a short hold
     },
 
     // 2) Centered text over the large, faint logo
     about: {
-        cardIn:       [0.05, 0.40],
-        textIn:       [0.20, 0.60],
-        end: 0.90,
+        cardIn:       [0.00, 0.28],
+        textIn:       [0.10, 0.40],
+        end: 0.58,
     },
 
-    // 3) Logo left; title, items one by one, each opens in turn, then all open
+    // 3) Centered over the faint logo; title, items one by one, each opens in turn, then all open
     why: {
-        titleIn:      [0.05, 0.30],
-        itemsIn:      [0.15, 0.40],  // first item; the rest follow by MOTION.stagger
-        steps:        [0.45, 1.20],  // split evenly across items
-        allOpen:      1.30,
-        end: 1.55,
+        titleIn:      [0.00, 0.22],
+        itemsIn:      [0.08, 0.28],  // first item; the rest follow by MOTION.stagger
+        steps:        [0.32, 0.84],  // split evenly across items
+        allOpen:      0.90,
+        end: 1.05,
     },
 
     // 4) Card over the faint logo
     vision: {
-        cardIn:       [0.05, 0.40],
-        end: 0.70,
+        cardIn:       [0.00, 0.30],
+        end: 0.50,
     },
 
     // 5) Card over the faint logo, items one by one
     goals: {
-        cardIn:       [0.05, 0.35],
-        end: 0.85,
+        cardIn:       [0.00, 0.26],
+        end: 0.62,
     },
 
     // 6) Title, then the cards burst out of the center into their row
     values: {
-        titleIn:      [0.05, 0.35],
-        cardsIn:      [0.20, 0.65],  // first card; the rest follow by MOTION.cardStagger
-        end: 1.15,
+        titleIn:      [0.00, 0.24],
+        cardsIn:      [0.10, 0.42],  // first card; the rest follow by MOTION.cardStagger
+        end: 0.78,
     },
 };
 
@@ -70,12 +70,12 @@ const MOTION = {
     shababFromX: -40,    // px, negative = from the left
     shababFromBlur: 8,   // px
     revealShift: 28,     // px, text rises this much while fading in
-    stagger: 0.07,       // timeline units between list items
-    cardStagger: 0.08,   // timeline units between value cards
+    stagger: 0.06,       // timeline units between list items
+    cardStagger: 0.06,   // timeline units between value cards
     cardFromScale: 0.2,  // value cards start this small, at the center
-    scrollLag: 0.07,     // s; how far animations trail the scroll (0 = locked to it)
+    scrollLag: 0.06,     // s; how far animations trail the scroll (0 = locked to it)
     mouseLag: 0.14,      // s; same for the mouse
-    lead: 0.25,          // timeline units; a scene starts playing this much before it reaches the top
+    lead: 0.30,          // timeline units; a scene starts playing this much before it reaches the top
     collapseIdle: 180,   // ms without scrolling before finished scenes collapse
 };
 
@@ -85,7 +85,7 @@ const LIGHTS = [
     { at: 0.00, a: [0.18, 0.50], b: [0.85, 0.18] },  // opening
     { at: 0.75, a: [0.80, 0.48], b: [0.20, 0.85] },  // intro
     { at: 1.50, a: [0.50, 0.30], b: [0.50, 0.85] },  // about
-    { at: 2.50, a: [0.28, 0.25], b: [0.82, 0.60] },  // why
+    { at: 2.50, a: [0.25, 0.30], b: [0.78, 0.75] },  // why
     { at: 3.50, a: [0.50, 0.50], b: [0.50, 0.95] },  // vision
     { at: 4.50, a: [0.30, 0.15], b: [0.72, 0.85] },  // goals
     { at: 5.50, a: [0.12, 0.70], b: [0.88, 0.28] },  // values
@@ -123,6 +123,7 @@ const el = {
     spot: $('.aura-spot'),
     lightA: $('.bg-light--a'),
     lightB: $('.bg-light--b'),
+    navLinks: $$('.nav-links a'),
 };
 
 // Everything JS transforms; reset before measuring
@@ -193,7 +194,7 @@ let running = false;
 const scenes = [
     { name: 'hero', render: renderHero, logo: logoHero },
     { name: 'about', render: renderAbout, logo: logoBack },
-    { name: 'why', render: renderWhy, logo: logoLeft },
+    { name: 'why', render: renderWhy, logo: logoBack },
     { name: 'vision', render: renderVision, logo: logoBack },
     { name: 'goals', render: renderGoals, logo: logoBack },
     { name: 'values', render: renderValues, logo: logoBack },
@@ -234,7 +235,6 @@ const SPOTS = {
     title: ['hero', '.logo-spot--title'],
     right: ['hero', '.logo-spot--right'],
     back: ['about', '.logo-spot--back'],
-    left: ['why', '.logo-spot--left'],
 };
 
 function mixLogo(a, b, t) {
@@ -260,10 +260,6 @@ function logoHero(p, T) {
 // Large and faint behind centered content
 function logoBack() {
     return { ...D.spots.back, rx: cfg.tiltBackX, ry: cfg.tiltBackY, op: cfg.backOpacity, mouse: cfg.backMouse, sharp: 1 };
-}
-
-function logoLeft() {
-    return { ...D.spots.left, rx: cfg.tiltAboutX, ry: cfg.tiltAboutY, op: cfg.endOpacity, mouse: cfg.aboutMouse, sharp: 1 };
 }
 
 function renderLogo() {
@@ -398,10 +394,27 @@ function renderBackground() {
         `translate3d(${Math.round((state.mx + 1) / 2 * W)}px, ${Math.round((state.my + 1) / 2 * H)}px, 0)`);
 }
 
+// Nav: marks the link of the scene filling most of the screen
+// (a scene without its own link, like goals, keeps the previous one)
+let activeLink = null;
+function renderNav() {
+    const mid = state.sy + window.innerHeight / 2;
+    let link = null;
+    scenes.forEach((s) => {
+        if (s.top > mid) return;
+        link = el.navLinks.find((a) => a.hash === `#${s.el.id}`) || link;
+    });
+    if (link === activeLink) return;
+    if (activeLink) activeLink.removeAttribute('aria-current');
+    if (link) link.setAttribute('aria-current', 'true');
+    activeLink = link;
+}
+
 function render() {
     scenes.forEach((s) => s.render(s.p, s.t));
     renderLogo();
     renderBackground();
+    renderNav();
 }
 
 /* =========================================================
@@ -425,11 +438,8 @@ function readConfig() {
         tiltEndY: num('--logo-tilt-end-y'),
         tiltIntroX: num('--logo-intro-tilt-x'),
         tiltIntroY: num('--logo-intro-tilt-y'),
-        tiltAboutX: num('--logo-about-tilt-x'),
-        tiltAboutY: num('--logo-about-tilt-y'),
         tiltBackX: num('--logo-back-tilt-x'),
         tiltBackY: num('--logo-back-tilt-y'),
-        aboutMouse: num('--logo-about-mouse', 0.25),
         backMouse: num('--logo-back-mouse', 0.4),
         mouseTilt: reduceMotion ? 0 : num('--logo-mouse-tilt'),
         mouseMove: reduceMotion ? 0 : num('--logo-mouse-move'),
@@ -617,6 +627,23 @@ themeQuery.addEventListener('change', (e) => {
     if (!saved) setTheme(e.matches ? 'light' : 'dark');
 });
 
+// Narrow screens: the menu button opens the links as a dropdown
+const menu = $('.nav-links');
+const menuBtn = $('.menu-toggle');
+function setMenu(open) {
+    menu.classList.toggle('is-open', open);
+    menuBtn.setAttribute('aria-expanded', String(open));
+}
+menuBtn.addEventListener('click', () => setMenu(!menu.classList.contains('is-open')));
+menu.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
+document.addEventListener('click', (e) => { if (!e.target.closest('header nav')) setMenu(false); });
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.classList.contains('is-open')) {
+        setMenu(false);
+        menuBtn.focus();
+    }
+});
+
 // Re-measure on resize, at most once per frame
 let resizeQueued = false;
 window.addEventListener('resize', () => {
@@ -631,3 +658,6 @@ window.addEventListener('resize', () => {
 measure();
 // Web fonts change text metrics
 if (document.fonts) document.fonts.ready.then(measure);
+
+// Footer year
+$('.footer-year').textContent = new Date().getFullYear();
