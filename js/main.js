@@ -73,7 +73,6 @@ const MOTION = {
     lead: 0.30,          // timeline units; a scene starts playing this much before it reaches the top
     collapseIdle: 180,   // ms without scrolling before finished scenes collapse
     lightLag: 0.55,      // s; background lights glide after the scroll on a spring (no jumps, no sudden starts)
-    exitShift: 0.1,      // screen fractions; a finished scene's content trails the scroll as it leaves
 };
 
 /* Background lights. at = scene index + progress through its scroll area (0-1;
@@ -204,7 +203,6 @@ const scenes = [
     return {
         ...s,
         el: sceneEl,
-        stage: $('.scene-stage', sceneEl),
         t: TIMELINE[s.name],
         lead: i ? MOTION.lead : 0,  // the first scene starts at the very top
         top: 0,            // page offset
@@ -437,25 +435,8 @@ function renderNav() {
     activeLink = link;
 }
 
-// A finished scene leaving the screen: its content trails the scroll a little,
-// so it eases out under the next scene instead of sliding off rigidly.
-// Transform only (no opacity), so the glass inside keeps refracting.
-function renderExits() {
-    const vh = window.innerHeight;
-    scenes.forEach((s, i) => {
-        let y = 0;
-        if (s.done && i < scenes.length - 1) {
-            const from = pinEnd(s);
-            const t = clamp((state.sy - from) / Math.max(1, scenes[i + 1].top - from));
-            y = MOTION.exitShift * vh * t * t;
-        }
-        setStyle(s.stage, 'transform', y ? `translate3d(0, ${r1(y)}px, 0)` : 'none');
-    });
-}
-
 function render() {
     scenes.forEach((s) => s.render(s.p, s.t));
-    renderExits();
     renderLogo();
     renderBackground();
     renderNav();
@@ -515,7 +496,7 @@ function measure() {
     readConfig();
     scenes.forEach(layoutScene);
 
-    [...moving, ...scenes.map((s) => s.stage)].forEach((node) => {
+    moving.forEach((node) => {
         node.style.transform = 'none';
         styleCache.delete(node);
     });
