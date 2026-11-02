@@ -77,13 +77,16 @@ const MOTION = {
     mouseLag: 0.14,      // s; same for the mouse
     lead: 0.30,          // timeline units; a scene starts playing this much before it reaches the top
     collapseIdle: 180,   // ms without scrolling before finished scenes collapse
+    lightLag: 0.35,      // s; background lights glide to their place (no jumps when scenes collapse)
+    exitShift: 0.1,      // screen fractions; a finished scene's content trails the scroll as it leaves
 };
 
-/* Background lights. at = scene index + progress through it (0-1);
+/* Background lights. at = scene index + progress through its scroll area (0-1;
+   past the last scene, + screens scrolled);
    a/b = light positions [x, y] as screen fractions. */
 const LIGHTS = [
     { at: 0.00, a: [0.18, 0.50], b: [0.85, 0.18] },  // opening
-    { at: 0.75, a: [0.80, 0.48], b: [0.20, 0.85] },  // intro
+    { at: 0.45, a: [0.80, 0.48], b: [0.20, 0.85] },  // intro
     { at: 1.50, a: [0.50, 0.30], b: [0.50, 0.85] },  // about
     { at: 2.50, a: [0.25, 0.30], b: [0.78, 0.75] },  // why
     { at: 3.50, a: [0.50, 0.50], b: [0.50, 0.95] },  // vision
@@ -91,8 +94,8 @@ const LIGHTS = [
     { at: 5.50, a: [0.12, 0.70], b: [0.88, 0.28] },  // values
     // After the scenes: at = 6 + screens scrolled past the values scene
     { at: 6.60, a: [0.82, 0.30], b: [0.15, 0.80] },  // events
-    { at: 8.20, a: [0.30, 0.60], b: [0.75, 0.20] },  // numbers
-    { at: 9.20, a: [0.50, 0.85], b: [0.20, 0.25] },  // contact
+    { at: 7.50, a: [0.30, 0.60], b: [0.75, 0.20] },  // numbers
+    { at: 8.20, a: [0.50, 0.85], b: [0.20, 0.25] },  // contact
 ];
 
 /* =========================================================
@@ -187,7 +190,8 @@ const D = {};     // layout measurements, from measure()
 
 // Smoothed values ease toward their targets each frame:
 // sy = scroll position (every scene's progress derives from it), mx/my = mouse (-1..1)
-const state = { sy: 0, ty: 0, mx: 0, my: 0, tmx: 0, tmy: 0 };
+// g/tg = position along LIGHTS (smoothed / target)
+const state = { sy: 0, ty: 0, mx: 0, my: 0, tmx: 0, tmy: 0, g: -1, tg: 0 };
 let running = false;
 
 /* =========================================================
@@ -207,6 +211,7 @@ const scenes = [
     return {
         ...s,
         el: sceneEl,
+        stage: $('.scene-stage', sceneEl),
         t: TIMELINE[s.name],
         lead: i ? MOTION.lead : 0,  // the first scene starts at the very top
         top: 0,            // page offset
@@ -376,13 +381,22 @@ function renderValues(p, T) {
     });
 }
 
+// Where the lights should be: scene index + progress through the scene's whole
+// scroll area. Follows the scroll continuously, whether a scene is playing or done.
+function lightTarget() {
+    const i = currentScene();
+    const s = scenes[i];
+    const vh = window.innerHeight;
+    const isLast = i === scenes.length - 1;
+    const end = isLast ? pinEnd(s) + vh : scenes[i + 1].top;
+    let g = i + clamp((state.sy - s.top) / Math.max(1, end - s.top));
+    if (isLast) g += Math.max(0, state.sy - end) / vh;  // flowing sections
+    return g;
+}
+
 // Background: lights follow the scenes; aura and spot follow the mouse
 function renderBackground() {
-    const i = currentScene();
-    const last = scenes[scenes.length - 1];
-    let g = i + scenes[i].p / scenes[i].t.end;
-    // Past the last scene, keep going by screens scrolled
-    if (i === scenes.length - 1 && last.done) g += Math.max(0, (state.sy - pinEnd(last)) / window.innerHeight);
+    const g = state.g;
 
     let k = 0;
     while (k < LIGHTS.length - 2 && g >= LIGHTS[k + 1].at) k++;
@@ -419,8 +433,25 @@ function renderNav() {
     activeLink = link;
 }
 
+// A finished scene leaving the screen: its content trails the scroll a little,
+// so it eases out under the next scene instead of sliding off rigidly.
+// Transform only (no opacity), so the glass inside keeps refracting.
+function renderExits() {
+    const vh = window.innerHeight;
+    scenes.forEach((s, i) => {
+        let y = 0;
+        if (s.done && i < scenes.length - 1) {
+            const from = pinEnd(s);
+            const t = clamp((state.sy - from) / Math.max(1, scenes[i + 1].top - from));
+            y = MOTION.exitShift * vh * t * t;
+        }
+        setStyle(s.stage, 'transform', y ? `translate3d(0, ${r1(y)}px, 0)` : 'none');
+    });
+}
+
 function render() {
     scenes.forEach((s) => s.render(s.p, s.t));
+    renderExits();
     renderLogo();
     renderBackground();
     renderNav();
@@ -480,7 +511,7 @@ function measure() {
     readConfig();
     scenes.forEach(layoutScene);
 
-    moving.forEach((node) => {
+    [...moving, ...scenes.map((s) => s.stage)].forEach((node) => {
         node.style.transform = 'none';
         styleCache.delete(node);
     });
@@ -518,8 +549,11 @@ function measure() {
     state.sy = state.ty = window.scrollY;
     updateProgress();
     collapseFinished();
+    state.tg = lightTarget();
+    if (state.g < 0) state.g = state.tg;  // first measure: no glide in
     render();
     if (!running) logo.classList.add('is-idle');
+    start();  // glides the lights if the layout moved them
 }
 
 // Progress follows the smoothed scroll. A scene locks (done) once its timeline
@@ -554,6 +588,7 @@ function collapseFinished() {
             state.ty = window.scrollY;
         }
         measureTops();
+        start();  // lights glide to the new layout instead of jumping
     });
 }
 
@@ -574,18 +609,24 @@ function tick(now) {
     state.mx += (state.tmx - state.mx) * follow(MOTION.mouseLag);
     state.my += (state.tmy - state.my) * follow(MOTION.mouseLag);
 
+    updateProgress();
+    state.tg = lightTarget();
+    state.g += (state.tg - state.g) * follow(reduceMotion ? 0 : MOTION.lightLag);
+
     const settled =
         Math.abs(state.ty - state.sy) < 0.5 &&
         Math.abs(state.tmx - state.mx) < 0.001 &&
-        Math.abs(state.tmy - state.my) < 0.001;
+        Math.abs(state.tmy - state.my) < 0.001 &&
+        Math.abs(state.tg - state.g) < 0.002;
 
     if (settled) {
         state.sy = state.ty;
         state.mx = state.tmx;
         state.my = state.tmy;
+        updateProgress();
+        state.g = state.tg = lightTarget();
     }
 
-    updateProgress();
     render();
 
     if (settled) {
@@ -642,6 +683,19 @@ themeQuery.addEventListener('change', (e) => {
     let saved = null;
     try { saved = localStorage.getItem('theme'); } catch (err) { /* storage blocked */ }
     if (!saved) setTheme(e.matches ? 'light' : 'dark');
+});
+
+// In-page links glide to their section instead of jumping (a jump makes every
+// scene in between flash through its animation in a few frames)
+$$('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+        const target = a.hash && document.getElementById(a.hash.slice(1));
+        if (!target) return;
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+        history.replaceState(null, '', a.hash);
+    });
 });
 
 // Narrow screens: the menu button opens the links as a dropdown

@@ -637,8 +637,9 @@ header nav {
 }
 
 /* Divider: a fine line at the bottom of each scene, drawn from the center
-   out once the scene has played (.is-done, set by JS), then it stays */
-.scene:not(:last-child) .scene-stage::after {
+   out once the scene has played (.is-done, set by JS), then it stays.
+   On the section, not the stage, so it never moves with the exit parallax. */
+.scene:not(:last-child)::after {
     content: "";
     position: absolute;
     left: 18%;
@@ -653,7 +654,7 @@ header nav {
     pointer-events: none;
 }
 
-.scene.is-done .scene-stage::after {
+.scene.is-done::after {
     opacity: 0.55;
     transform: scaleX(1);
 }
@@ -1709,7 +1710,7 @@ footer::before {
         animation: none;
     }
 
-    .scene-stage::after,
+    .scene::after,
     [data-reveal] {
         opacity: 1;
         transform: none;
